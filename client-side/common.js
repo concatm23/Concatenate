@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-18 17:02:29
- * @LastEditTime    : 2022-07-21 22:50:09
+ * @LastEditTime    : 2022-07-21 22:55:50
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \git-rebuild\Concatenate\client-side\common.js
@@ -265,7 +265,7 @@ logger.prototype.filter = function (level = logger.INFO) {
 logger.prototype.print = function (level, msg) {
     if (level < this.level) return -1; //not print
     const format_string = new StringBuilder();
-    format_string.append(new Date().toISOString(), ' ', this.env, ' ');
+    format_string.append('[',new Date().toISOString(), '] ', this.env, ' ');
     return this.print_to_console(format_string, level, msg); //build basic output message
 };
 logger.prototype.print_to_console = function (format_string, level, msg) {
