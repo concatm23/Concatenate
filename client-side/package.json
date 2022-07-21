@@ -45,8 +45,10 @@
     }
   },
   "dependencies": {
-    "compressing": "^1.5.1",
     "internet-available": "^1.0.0",
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.1.0",
+    "better-sqlite3": "^7.5.3",
+    "ws": "^8.7.0",
+    "chalk": "^4.0.0"
   }
 }
