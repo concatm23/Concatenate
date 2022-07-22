@@ -10,8 +10,10 @@
     "alwaysOnTop": false,
     "skipTaskbar": false,
     "frame": true,
-    "webPreference": {
+    "webPreferences": {
         "nodeIntegration": true,
-        "webSecurity": false
+        "contextIsolation": false,
+        "webSecurity": false,
+        "enableRemoteModule": true
     }
 }
