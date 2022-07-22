@@ -1,10 +1,10 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-17 14:41:01
- * @LastEditTime    : 2022-07-21 22:57:32
+ * @LastEditTime    : 2022-07-22 09:55:56
  * @LastEditors     : lihugang
  * @Description     : 
- * @FilePath        : \git-rebuild\Concatenate\client-side\main.js
+ * @FilePath        : \client-side\main.js
  * @Copyright (c) lihugang
  * @长风破浪会有时 直挂云帆济沧海
  * @There will be times when the wind and waves break, and the sails will be hung straight to the sea.
@@ -20,11 +20,17 @@ const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 const Menu = electron.Menu;
 const Tray = electron.Tray;
-const ia = require('internet-available'); //Check internet connected
 const ws = require('ws'); //Web socket
 const crypto = require('crypto'); //Crypto
 const path = require('path'); //path process
 const pkgID = 'pz6w7nkeote'; //Package ID
+const ptrObject = function (obj = {}) {
+    for (var key in obj) this[key] = obj[key];
+};
+// In JavaScript, passing a string or an integer, etc. is a copy value, and passing an object is a copy pointer,
+// and the object can be modified through the pointer within the function, 
+//but the original string or integer cannot be modified. 
+//So, encapsulate a string or integer into an object to pass it
 
 var mainWindow = null; //Electron main window
 
@@ -35,23 +41,37 @@ const __usrDir = path.join(process.env.APPDATA, `concatenate.${pkgID}`); //APPDA
 const __storePath = path.join(process.env.APPDATA, `concatenate.${pkgID}`, 'dat');
 const __update_resource_path = path.join(process.env.APPDATA, `concatenate.${pkgID}`, (process.argv.indexOf('--fs') != -1) ? 'resources' : 'resources.asar'); // Use directory 'resources' instead of 'resources.asar' in fs arg mode
 
+const initLogger = new logger('init');
+if (__debugFlag) initLogger.filter(logger.ALL);
+//debug mode, print all logs
+
 async function init() {
+    initLogger.info('Initial software');
     var res = void 0;
     var callee = [
         require(path.join(
             __resourcePath,
             'routers',
             'init_folder.js'
+        )),
+        require(path.join(
+            __resourcePath, 
+            'routers',
+            'check_internet.js'
         ))
     ];
     for (var i = 0; i < callee.length; i++) {
+        initLogger.info('Call function',callee[i]);
         res = await callee[i](res, {
             resourcePath: __resourcePath,
             __debugFlag,
             pkgID,
             __usrDir,
             __storePath,
-            __update_resource_path
+            __update_resource_path,
+            isOnline_ptr,
+            init_status_ptr,
+            logger: initLogger
         });
     };
 };
@@ -59,7 +79,11 @@ async function init() {
 init();
 
 
-var init_status = false;
-var isOnline = null;
+var init_status_ptr = new ptrObject({
+    init_status: false
+});
+var isOnline_ptr = new ptrObject({
+    online: null
+});
 global.config = {};
 
