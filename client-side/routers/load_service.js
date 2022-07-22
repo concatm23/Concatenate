@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:25:26
- * @LastEditTime    : 2022-07-22 16:05:56
+ * @LastEditTime    : 2022-07-22 16:59:11
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\routers\load_service.js
@@ -23,6 +23,7 @@ module.exports = async function(void_args, map) {
         __update_resource_path, 
         'index.html'
     ));
+    //resources/index.html
     logger.info('Load URL: ' , path.join(__update_resource_path, 'index.html'));
     const func = require(path.join(
         __update_resource_path,

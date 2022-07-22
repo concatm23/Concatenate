@@ -1,10 +1,10 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-17 14:41:01
- * @LastEditTime    : 2022-07-22 14:14:43
+ * @LastEditTime    : 2022-07-22 16:52:14
  * @LastEditors     : lihugang
  * @Description     : 
- * @FilePath        : \client-side\main.js
+ * @FilePath        : e:\concatenate\git-rebuild\Concatenate\client-side\main.js
  * @Copyright (c) lihugang
  * @长风破浪会有时 直挂云帆济沧海
  * @There will be times when the wind and waves break, and the sails will be hung straight to the sea.
@@ -92,6 +92,8 @@ async function init() {
             'load_service.js'
         ))
     ];
+    //require tasks that setup will be used
+    //Init Folder -> Check Internet -> Create Window -> Create Tray -> Read Config -> Download Package Resources -> Load Service
     for (var i = 0; i < callee.length; i++) {
         initLogger.info('Call function',callee[i]);
         res = await callee[i](res, {
@@ -124,7 +126,7 @@ if (!key) {
     app.quit(); //get lock failed, one more instances
 } else {
     new logger('check').info('Get Signal Instance Lock');
-    app.on('ready',init); //Waiting for app ready
+    app.on('ready',init); 
     app.on('window-all-closed', () => {
         app.quit();
     })

@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-21 22:10:09
- * @LastEditTime    : 2022-07-22 09:48:27
+ * @LastEditTime    : 2022-07-22 16:58:59
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\routers\init_folder.js
@@ -20,8 +20,10 @@ module.exports = async function init_folder (void_arg, map) {
     } = map;
     return new Promise((resolve, reject) => {
         fs.mkdir(__usrDir, (err) => {
+            //%appdata%/concatenate.xxx
             if (err) return resolve(false);
             fs.mkdir(__storePath, (err) => {
+                //%appdata%/concatenate.xxx/dat
                 if (err) return resolve(false);
                 resolve(true);
             });
