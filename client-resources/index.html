@@ -2,7 +2,7 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>{{ app.name }}</title>
+    <title>Concatenate</title>
     <script>
         window.nodeRequire = require;
         window.nodeModule = module;
@@ -15,10 +15,13 @@
     <script>
         const sdk = fRequire('lib/sdk.js');
         const translation = fRequire('lib/translation.js');
-        sdk.getConfig('user_config',function(config) {
+        sdk.getConfig('user_config', function (config) {
             translation.config({
                 lang: config.lang, //language
             });
+        });
+        sdk.on('translation-finish-loading', function () {
+            document.title = translation.translate('@{app.name}');
         });
     </script>
 </head>
