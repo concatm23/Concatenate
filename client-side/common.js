@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-18 17:02:29
- * @LastEditTime    : 2022-07-22 10:21:48
+ * @LastEditTime    : 2022-07-22 11:39:40
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\common.js
@@ -104,7 +104,7 @@ if (runInNode) var fetch = function (reqPath, options = {}) {
             }, res => {
                 var data = '';
                 res.on('data', chunk => {
-                    nk;
+                    data += chunk.toString();
                 });
                 res.on('end', () => {
                     resolve({
