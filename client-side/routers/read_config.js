@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 11:06:41
- * @LastEditTime    : 2022-07-22 11:45:25
+ * @LastEditTime    : 2022-07-22 13:28:55
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\routers\read_config.js
@@ -66,6 +66,7 @@ module.exports = async function read_config (void_arg, map) {
                 reject('Failed to parse config.yaml');
             };
             logger.info('Config',config_ptr.config);
+            resolve();
         });
     })
 
