@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-17 14:41:01
- * @LastEditTime    : 2022-07-22 13:01:34
+ * @LastEditTime    : 2022-07-22 14:14:43
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\main.js
@@ -85,6 +85,11 @@ async function init() {
             __resourcePath,
             'routers',
             'download_package.js'
+        )),
+        require(path.join(
+            __resourcePath,
+            'routers',
+            'load_service.js'
         ))
     ];
     for (var i = 0; i < callee.length; i++) {
@@ -107,7 +112,8 @@ async function init() {
             fetch,
             yaml,
             download_file,
-            logger: initLogger
+            logger: initLogger,
+            Logger: logger
         });
     };
 };
@@ -118,7 +124,10 @@ if (!key) {
     app.quit(); //get lock failed, one more instances
 } else {
     new logger('check').info('Get Signal Instance Lock');
-    init();
+    app.on('ready',init); //Waiting for app ready
+    app.on('window-all-closed', () => {
+        app.quit();
+    })
 };
 
 
