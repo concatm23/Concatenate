@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>Concatenate</title>
+    <link rel="stylesheet" href="css/fonts.css">
     <script>
         window.nodeRequire = require;
         window.nodeModule = module;
@@ -15,13 +16,39 @@
     <script>
         const sdk = fRequire('lib/sdk.js');
         const translation = fRequire('lib/translation.js');
+
         sdk.getConfig('user_config', function (config) {
             translation.config({
                 lang: config.lang, //language
             });
         });
+
         sdk.on('translation-finish-loading', function () {
             document.title = translation.translate('@{app.name}');
         });
+
+        sdk.fs.read('loginStatus').then(function (data) { //check login status
+            data = JSON.parse(data);
+            const expire_time = 1000 * 60 * 60 * 24 * 2.5; //2.5 days, 60 hrs
+            if (new Date().getTime() - data.login_time > expire_time) {
+                //login expired
+                if (data.keepLogin) {
+                    //keep login
+                    sessionStorage.setItem('username', data.username);
+                    sessionStorage.setItem('password', data.password);
+                    //store in session storage
+                };
+                location.href = 'ui/login.html';
+            } else {
+                //load group page
+                location.href = 'ui/groups.html';
+            };
+        }).catch(function (err) {
+            //not login
+            location.href = 'ui/login.html';
+        }) 
     </script>
 </head>
+<body>
+    
+</body>

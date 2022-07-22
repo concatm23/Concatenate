@@ -1,0 +1,219 @@
+<!--
+ * @Author          : chenglan28
+ * @Date            : 2022-07-22 18:54:09
+ * @LastEditTime    : 2022-07-22 20:05:02
+ * @LastEditors     : lihugang
+ * @Description     : 
+ * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\ui\login.html
+ * Copyright (c) lihugang
+ * 长风破浪会有时 直挂云帆济沧海
+ * There will be times when the wind and waves break, and the sails will be hung straight to the sea.
+ *  * * * 
+ * 是非成败转头空 青山依旧在 几度夕阳红
+ * Whether it's right or wrong, success or failure, it's all empty now, and it's all gone with the passage of time. The green hills of the year still exist, and the sun still rises and sets.
+-->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Concatenate</title>
+    <link rel="stylesheet" href="../css/fonts.css">
+    <script>
+        window.nodeRequire = require;
+        window.nodeModule = module;
+        delete require;
+        delete module;
+        const ipcRenderer = nodeRequire('electron').ipcRenderer;
+    </script>
+    <script src="../lib/require.js"></script>
+    <script src="../lib/vue.js"></script>
+    <script>
+        const sdk = fRequire('../lib/sdk.js');
+        const translation = fRequire('../lib/translation.js');
+
+        sdk.getConfig('user_config', function (config) {
+            translation.config({
+                lang: config.lang, //language
+            }, '../');
+        });
+
+        sdk.on('translation-finish-loading', function () {
+            document.title = translation.translate('@{app.name}');
+        });
+    </script>
+    <style>
+        #login {
+            padding: 0;
+            margin: 0;
+            position: absolute;
+            border: 1px solid gray;
+            background-color: white;
+        }
+
+        #login-icon {
+            margin: 0;
+            padding: 0;
+        }
+
+        #login-title {
+            position: absolute;
+            color: #2c2c2c;
+        }
+
+        #login-username,
+        #login-password {
+            position: absolute;
+            border-left: 2px solid #07F;
+            border-top: none;
+            border-bottom: none;
+            border-right: none;
+        }
+
+        #login-username:hover,
+        #login-password:hover {
+            position: absolute;
+            border-left: 2px solid purple;
+            border-top: none;
+            border-bottom: none;
+            border-right: none;
+        }
+
+        #login-check {
+            position: absolute;
+        }
+
+        .login-button {
+            background-color: #07F;
+            border: none;
+            color: white;
+        }
+
+        .login-button:hover {
+            background-color: #CCC;
+            border: none;
+            color: #07F;
+        }
+    </style>
+    <script>
+        var checkFlag = 0;
+        function resize() {
+            var width = window.innerWidth;
+            var height = window.innerHeight;
+            document.body.style.padding = height / 64 + "px";
+            if (checkFlag == 0) {
+
+                document.getElementById("login-username").style.width = width - width / 5 + "px";
+                document.getElementById("login-username").style.top = height / 10 * 3 + "px";
+                document.getElementById("login-username").style.height = height / 8 + "px";
+                document.getElementById("login-username").style.fontSize = (width + height) / 50 + "px";
+
+                document.getElementById("login-password").style.width = width - width / 5 + "px";
+                document.getElementById("login-password").style.top = height / 10 * 5 + "px";
+                document.getElementById("login-password").style.height = height / 8 + "px";
+                document.getElementById("login-password").style.fontSize = (width + height) / 50 + "px";
+
+                document.getElementById("login-check").style.top = height / 3 * 2 + "px";
+                document.getElementById("login-check").style.left = width / 10 + "px";
+                document.getElementById("login-check").style.fontSize = (width + height) / 100 + "px";
+            }
+            else {
+                document.getElementById("recaptcha").style.width = width - height / 8 + "px";
+                document.getElementById("recaptcha").style.height = height - width / 10 - width / 8 - 32 + "px";
+                document.getElementById("recaptcha").style.top = height - width / 10 + "px";
+
+                document.getElementsByClassName("login-button")[0].style.margin = width / 16 + "px 0px 0px 0px";
+                document.getElementsByClassName("login-button")[1].style.margin = width / 16 + "px 0px 0px 0px";
+                document.getElementsByClassName("login-button")[1].style.padding = width / 32 + "px";
+                document.getElementsByClassName("login-button")[1].style.fontSize = (width + height) / 100 + "px";
+            }
+
+
+            document.getElementById("login-icon").style.width = width / 10 + "px";
+            document.getElementById("login-icon").style.height = width / 10 + "px";
+
+            document.getElementById("login-title").style.fontSize = width / 20 + "px";
+
+            document.getElementsByClassName("login-button")[0].style.padding = width / 32 + "px";
+            document.getElementsByClassName("login-button")[0].style.fontSize = (width + height) / 100 + "px";
+
+            document.getElementById("remember").style.color = 'gray';
+            document.getElementById("remember").style.width = ~~((width + height) / 72) + "px";
+            document.getElementById("remember").style.height = ~~((width + height) / 72) + "px";
+        }
+        window.onresize = resize;
+        window.onload = resize;
+
+        window.timeout_captcha_expired_lock = false;
+        setInterval(function () {
+            try {
+                window.captcha = document.querySelector('iframe').contentWindow.location.search.substring(1);
+                if (window.captcha == '') { //failed to get
+                    document.querySelector('iframe').style.display = '';
+                    return;
+                };
+                document.querySelector('iframe').style.display = 'none';
+                //get captcha code
+                //this may cause problems when the protocol isn't same with this page
+                //When user finish the CAPTCHA, it will be jumped to xxx.callback_captcha.html
+                //When this time, this code will be not wrong.
+            } catch (e) {
+                return;
+            };
+            if (window.timeout_captcha_expired_lock) return;
+            setTimeout(function () {
+                //captcha expired
+                document.querySelector('iframe').style.display = '';
+                document.querySelector('iframe').contentWindow.location.href = `https://download-concatenate.deta.dev/captcha?${location.href}.captcha_callback.html`;
+                window.timeout_captcha_expired_lock = false;
+            }, 2 * 60 * 1000); //2mins
+            window.timeout_captcha_expired_lock = true;
+
+        }, 2000);
+    </script>
+    <script>
+        function register() {
+        };
+    </script>
+</head>
+
+<body>
+    <!--甲方:
+        三个填空框：
+        用户名
+        密码
+        X确认密码
+        一个勾选框：
+        记住我
+        中间留一行字 登录即代表同意xxx协议 协议内容我自己补充
+        再往下留个div框给recaptcha验证码用
+        最后是个提交按钮
+        -->
+    <!--项目名:Concatenate-->
+    <img src="icon.png" id="login-icon" />
+    <span id="login-title">@{app.name} @{dict.login} @{dict.system}</span>
+    <input type="text" id="login-username" placeholder="@{dict.username}" maxlength=24 />
+    <input type="password" id="login-password" placeholder="@{dict.password}" maxlength=16 />
+    <div id="login-check">
+
+        <span style="color: gray;">@{register.agreements_tip}</span>
+        <br /><br />
+        <div id="captcha">
+            <iframe height="300px" width="350px" src="" border=0></iframe>
+        </div>
+        <br />
+        @{login.register_tip}
+        <br />
+        <button type="button" class="login-button" onclick="login()">@{dict.login}</button>
+        <input type="checkbox" id="remember">@{login.auto_login}
+    </div>
+</body>
+
+<script>
+    sdk.on('translation-finish-loading', function () {
+        translation.translatePage();
+    });
+    document.querySelector('iframe').src = `https://download-concatenate.deta.dev/captcha?${location.href}.captcha_callback.html`;
+</script>
+
+</html>
