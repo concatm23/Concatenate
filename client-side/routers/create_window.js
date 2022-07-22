@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 10:24:26
- * @LastEditTime    : 2022-07-22 10:36:12
+ * @LastEditTime    : 2022-07-22 10:54:27
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\routers\create_window.js
@@ -14,7 +14,7 @@
  */
 const fs = require('fs');
 const path = require('path');
-module.exports = async function(info,map) {
+module.exports = async function create_window(info,map) {
     return new Promise(function(resolve,reject) {
         const { logger, __debugFlag, __resourcePath, Menu, BrowserWindow, mainWindow_ptr } = map;
         try {

@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-17 14:41:01
- * @LastEditTime    : 2022-07-22 10:32:49
+ * @LastEditTime    : 2022-07-22 10:49:43
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\main.js
@@ -40,9 +40,13 @@ var mainWindow_ptr = new ptrObject({
 const __resourcePath = (process.argv.indexOf('--fs') != -1) ? __dirname : `${__dirname}/resources/app.asar`;
 const __debugFlag = (process.argv.indexOf('--debug') != -1) ? true : false;
 
-const __usrDir = path.join(process.env.APPDATA, `concatenate.${pkgID}`); //APPDATA
-const __storePath = path.join(process.env.APPDATA, `concatenate.${pkgID}`, 'dat');
+const __usrDir = path.join(process.env.APPDATA, `concatenate.${pkgID}`); //%APPDATA%/concatenate.${pkgID}
+const __storePath = path.join(process.env.APPDATA, `concatenate.${pkgID}`, 'dat'); //%APPDATA%/concatenate.${pkgID}/dat
 const __update_resource_path = path.join(process.env.APPDATA, `concatenate.${pkgID}`, (process.argv.indexOf('--fs') != -1) ? 'resources' : 'resources.asar'); // Use directory 'resources' instead of 'resources.asar' in fs arg mode
+//Debug Mode:
+//%APPDATA%/concatenate.${pkgID}/resources/
+//Normal Mode:
+//%APPDATA%/concatenate.${pkgID}/resources.asar (in one file)
 
 const initLogger = new logger('init');
 if (__debugFlag) initLogger.filter(logger.ALL);
@@ -66,6 +70,11 @@ async function init() {
             __resourcePath,
             'routers',
             'create_window.js'
+        )),
+        require(path.join(
+            __resourcePath,
+            'routers',
+            'create_tray.js'
         ))
     ];
     for (var i = 0; i < callee.length; i++) {
