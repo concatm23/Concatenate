@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-18 17:02:29
- * @LastEditTime    : 2022-07-22 09:54:19
+ * @LastEditTime    : 2022-07-22 10:21:48
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\common.js
@@ -235,15 +235,18 @@ logger.INFO = 3;
 logger.WARN = 4;
 logger.ERROR = 5;
 logger.FATAL = 6;
-logger.OFF = 7;
+logger.MARK = 7;
+logger.OFF = 8;
 logger.level_color = [
     0,
-    'gray', //trace
-    'green', //debug
-    'white', //info
+    'grey', //trace
+    'cyan', //debug
+    'green', //info
     'yellow', //warn
-    'orange', //error
-    'red', //fatal 
+    'red', //error
+    'magenta', //fatal
+    'grey', //mark
+    'grey', //off
 ];
 logger.level_name = [
     'ALL',
@@ -253,6 +256,7 @@ logger.level_name = [
     'WARN',
     'ERROR',
     'FATAL',
+    'MARK',
     'OFF',
 ];
 logger.prototype.filter = function (level = logger.INFO) {
@@ -261,13 +265,12 @@ logger.prototype.filter = function (level = logger.INFO) {
 logger.prototype.print = function (level, msg) {
     if (level < this.level) return -1; //not print
     const format_string = new StringBuilder();
-    format_string.append('[', new Date().toISOString(), '] ', this.env, ' ');
-    return this.print_to_console(format_string, level, msg); //build basic output message
+    return this.print_to_console(format_string, level, msg);
 };
 logger.prototype.print_to_console = function (format_string, level, msg) {
     if (runInNode)
-        format_string.append(chalk[logger.level_color[level]](logger.level_name[level]), ' ');
-    else format_string.append(logger.level_name[level], ' ');
+        format_string.append(chalk[logger.level_color[level]](`[${new Date().toISOString()}] [${logger.level_name[level]}] ${this.env} -`), chalk.white(''), ' ');
+    else format_string.append('[', new Date().toISOString(), '] [', logger.level_name[level], '] ', this.env, ' - ', ' ');
     for (var i = 0, len = msg.length; i < len; ++i) {
         format_string.append(
             (msg[i] instanceof Error) ? (
@@ -292,7 +295,8 @@ logger.prototype.info = function (...msg) { return this.print(logger.INFO, msg) 
 logger.prototype.warn = function (...msg) { return this.print(logger.WARN, msg) };
 logger.prototype.error = function (...msg) { return this.print(logger.ERROR, msg) };
 logger.prototype.fatal = function (...msg) { return this.print(logger.FATAL, msg) };
-
+logger.prototype.mark = function (...msg) { return this.print(logger.MARK, msg) };
+logger.prototype.off = function (...msg) { return this.print(logger.OFF, msg) };
 
 module.exports = {
     makeRequest,
