@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 16:08:33
- * @LastEditTime    : 2022-07-22 16:28:35
+ * @LastEditTime    : 2022-07-22 17:08:05
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\backend\index.js
@@ -12,6 +12,8 @@
  * @是非成败转头空 青山依旧在 几度夕阳红
  * @Whether it's right or wrong, success or failure, it's all empty now, and it's all gone with the passage of time. The green hills of the year still exist, and the sun still rises and sets.
  */
+const fs = require('fs');
+
 module.exports = function(map) {
 
     const { Logger } = map;
@@ -23,7 +25,7 @@ module.exports = function(map) {
 
 function msg_process(logger,map) {
     const ipcMain = require('electron').ipcMain;
-    
+    const { __storePath } = map;
     ipcMain.on('get-config', function (e, msg) {
         logger.info('Get message: get-config',msg);
         const data = map.config_ptr.config;
