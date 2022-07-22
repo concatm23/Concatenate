@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-17 14:41:01
- * @LastEditTime    : 2022-07-22 11:46:58
+ * @LastEditTime    : 2022-07-22 13:01:34
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\main.js
@@ -15,7 +15,7 @@
 const electron = require('electron'); // Electron web app
 const fs = require('fs'); //FileSystem
 const yaml = require('js-yaml'); //yaml parser
-const { fetch, makeRequest, logger, StringBuilder } = require('./common.js');
+const { fetch, makeRequest, logger, StringBuilder, download_file } = require('./common.js');
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 const Menu = electron.Menu;
@@ -80,6 +80,11 @@ async function init() {
             __resourcePath,
             'routers',
             'read_config.js'
+        )),
+        require(path.join(
+            __resourcePath,
+            'routers',
+            'download_package.js'
         ))
     ];
     for (var i = 0; i < callee.length; i++) {
@@ -101,6 +106,7 @@ async function init() {
             Tray,
             fetch,
             yaml,
+            download_file,
             logger: initLogger
         });
     };
