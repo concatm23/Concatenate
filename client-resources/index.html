@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>{{ app.name }}</title>
+    <script>
+        window.nodeRequire = require;
+        window.nodeModule = module;
+        delete require;
+        delete module;
+        const ipcRenderer = nodeRequire('electron').ipcRenderer;
+    </script>
+    <script src="lib/require.js"></script>
+    <script src="lib/vue.js"></script>
+    <script>
+        const sdk = fRequire('lib/sdk.js');
+        const translation = fRequire('lib/translation.js');
+        sdk.getConfig('user_config',function(config) {
+            translation.config({
+                lang: config.lang, //language
+            });
+        });
+    </script>
+</head>
