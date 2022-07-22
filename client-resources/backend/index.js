@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 16:08:33
- * @LastEditTime    : 2022-07-22 16:08:46
+ * @LastEditTime    : 2022-07-22 16:28:35
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\backend\index.js
@@ -14,4 +14,20 @@
  */
 module.exports = function(map) {
 
+    const { Logger } = map;
+
+    const msgLogger = new Logger('ipcChannel');
+
+    msg_process(msgLogger,map);
+};
+
+function msg_process(logger,map) {
+    const ipcMain = require('electron').ipcMain;
+    
+    ipcMain.on('get-config', function (e, msg) {
+        logger.info('Get message: get-config',msg);
+        const data = map.config_ptr.config;
+        if (msg == '' || msg == '.') e.sender.send('get-config',data);
+        else e.sender.send('get-config',data[msg] || {});
+    });
 };
