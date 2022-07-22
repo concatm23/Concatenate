@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-18 17:02:29
- * @LastEditTime    : 2022-07-22 11:39:40
+ * @LastEditTime    : 2022-07-22 13:10:01
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\common.js
@@ -124,8 +124,45 @@ if (runInNode) var fetch = function (reqPath, options = {}) {
             response: ''
         };
     };
+};
 
-
+if (runInNode) var download_file = async function (reqPath, options = {}, savePath = 'download') {
+    try {
+        var url = new URL(reqPath);
+        return new Promise(function (resolve, reject) {
+            const write_fd = fs.openSync(savePath, 'w');
+            const reqClass = (url.protocol == 'https:') ? https : http;
+            const req = reqClass.request({
+                host: url.hostname,
+                port: url.port,
+                path: url.pathname + url.search,
+                method: options.method || 'GET',
+                headers: options.headers || {}
+            }, res => {
+                if (res.status >= 300 && res.status <= 399) {
+                    //forward
+                    resolve(download_file(res.headers.location, options, savePath));
+                } else if (res.status <= 200 || res.status >= 400) {
+                    //bad http code
+                    //download error
+                    reject('Bad Http Status: ' + res.status);
+                };
+                res.on('data', chunk => {
+                    fs.writeFileSync(write_fd, chunk, 'binary');
+                });
+                res.on('end', () => {
+                    fs.closeSync(write_fd);
+                    resolve()
+                });
+            });
+            if (options.body) req.write(options.body, 'binary');
+            req.end();
+        });
+    } catch (e) {
+        return new Promise(function (resolve, reject) {
+            reject('Bad URL');
+        })
+    };
 };
 
 function replaceObjects(obj, env) {
@@ -308,5 +345,6 @@ module.exports = {
     sqlInjectionTest,
     deeply_copy,
     StringBuilder,
-    logger
+    logger,
+    download_file
 };
