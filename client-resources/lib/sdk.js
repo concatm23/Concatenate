@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:54:07
- * @LastEditTime    : 2022-07-22 16:03:38
+ * @LastEditTime    : 2022-07-22 16:36:04
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\lib\sdk.js
@@ -23,15 +23,31 @@ const fs = {
 function getConfig(category, callback) {
     return new Promise(function(resolve,reject) {
         ipcRenderer.send('get-config',category);
-        ipcRenderer.once('get-config', function(data) {
+        ipcRenderer.once('get-config', function(e,data) {
             if (callback) callback(data);
             resolve(data);
         });
     });
+};
+function getConfigSync(category, callback) {
+    var data = ipcRenderer.sendSync('get-config', category);
+    if (callback) callback(data);
+    return data;
+};
+var _listeners = {};
+function on(e,func) {
+    if (!_listeners[e]) _listeners[e] = [];
+    _listeners[e].push(func);
+};
+function publish(e,...data) {
+    for (var i = 0, len = _listeners[e].length; i < len; ++i) _listeners[e][i](...data);
 };
 module.exports = {
     env: 'app',
     platform: navigator.platform.toLowerCase(),
     fs: fs,
     getConfig: getConfig,
+    getConfigSync: getConfigSync,
+    on: on,
+    publish: publish
 }
