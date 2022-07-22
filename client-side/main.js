@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-17 14:41:01
- * @LastEditTime    : 2022-07-22 10:59:07
+ * @LastEditTime    : 2022-07-22 11:46:58
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\main.js
@@ -75,6 +75,11 @@ async function init() {
             __resourcePath,
             'routers',
             'create_tray.js'
+        )),
+        require(path.join(
+            __resourcePath,
+            'routers',
+            'read_config.js'
         ))
     ];
     for (var i = 0; i < callee.length; i++) {
@@ -89,10 +94,13 @@ async function init() {
             isOnline_ptr,
             init_status_ptr,
             mainWindow_ptr,
+            config_ptr,
             app,
             BrowserWindow,
             Menu,
             Tray,
+            fetch,
+            yaml,
             logger: initLogger
         });
     };
@@ -116,5 +124,7 @@ var init_status_ptr = new ptrObject({
 var isOnline_ptr = new ptrObject({
     online: null
 });
-global.config = {};
+var config_ptr = new ptrObject({
+    config: {}
+});
 

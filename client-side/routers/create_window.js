@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 10:24:26
- * @LastEditTime    : 2022-07-22 10:54:27
+ * @LastEditTime    : 2022-07-22 11:06:09
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\routers\create_window.js
@@ -32,7 +32,7 @@ module.exports = async function create_window(info,map) {
         logger.info('Create Main Window', 'width = ', options.width, 'height = ', options.height);
         if (__debugFlag)
             mainWindow_ptr.mainWindow.webContents.openDevTools();
-        mainWindow_ptr.mainWindow.loadURL(path.join(__resourcePath, 'static-html', 'loading.html'));
+        mainWindow_ptr.mainWindow.loadURL(path.join(__resourcePath, 'static-html', 'loading.html?Loading'));
         resolve();
     });
 };
