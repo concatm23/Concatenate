@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-17 14:41:01
- * @LastEditTime    : 2022-07-22 10:49:43
+ * @LastEditTime    : 2022-07-22 10:59:07
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\main.js
@@ -98,7 +98,16 @@ async function init() {
     };
 };
 
-init();
+const key = app.requestSingleInstanceLock(); //signal instance
+if (!key) {
+    new logger('check').info('Failed to get Signal Instance Lock');
+    app.quit(); //get lock failed, one more instances
+} else {
+    new logger('check').info('Get Signal Instance Lock');
+    init();
+};
+
+
 
 
 var init_status_ptr = new ptrObject({
