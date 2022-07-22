@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-18 17:02:29
- * @LastEditTime    : 2022-07-22 13:10:01
+ * @LastEditTime    : 2022-07-22 13:46:56
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\common.js
@@ -139,20 +139,20 @@ if (runInNode) var download_file = async function (reqPath, options = {}, savePa
                 method: options.method || 'GET',
                 headers: options.headers || {}
             }, res => {
-                if (res.status >= 300 && res.status <= 399) {
+                if (res.statusCode >= 300 && res.statusCode <= 399) {
                     //forward
                     resolve(download_file(res.headers.location, options, savePath));
-                } else if (res.status <= 200 || res.status >= 400) {
+                } else if (res.statusCode <= 200 || res.statusCode >= 400) {
                     //bad http code
                     //download error
-                    reject('Bad Http Status: ' + res.status);
+                    reject('Bad Http Status: ' + res.statusCode);
                 };
                 res.on('data', chunk => {
                     fs.writeFileSync(write_fd, chunk, 'binary');
                 });
                 res.on('end', () => {
                     fs.closeSync(write_fd);
-                    resolve()
+                    resolve();
                 });
             });
             if (options.body) req.write(options.body, 'binary');
