@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-18 17:02:29
- * @LastEditTime    : 2022-07-22 13:46:56
+ * @LastEditTime    : 2022-07-22 13:50:57
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\common.js
@@ -146,6 +146,7 @@ if (runInNode) var download_file = async function (reqPath, options = {}, savePa
                     //bad http code
                     //download error
                     reject('Bad Http Status: ' + res.statusCode);
+                    return;
                 };
                 res.on('data', chunk => {
                     fs.writeFileSync(write_fd, chunk, 'binary');
