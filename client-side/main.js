@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-17 14:41:01
- * @LastEditTime    : 2022-07-22 09:55:56
+ * @LastEditTime    : 2022-07-22 10:32:49
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\main.js
@@ -33,6 +33,9 @@ const ptrObject = function (obj = {}) {
 //So, encapsulate a string or integer into an object to pass it
 
 var mainWindow = null; //Electron main window
+var mainWindow_ptr = new ptrObject({
+    mainWindow
+});
 
 const __resourcePath = (process.argv.indexOf('--fs') != -1) ? __dirname : `${__dirname}/resources/app.asar`;
 const __debugFlag = (process.argv.indexOf('--debug') != -1) ? true : false;
@@ -58,12 +61,17 @@ async function init() {
             __resourcePath, 
             'routers',
             'check_internet.js'
+        )),
+        require(path.join(
+            __resourcePath,
+            'routers',
+            'create_window.js'
         ))
     ];
     for (var i = 0; i < callee.length; i++) {
         initLogger.info('Call function',callee[i]);
         res = await callee[i](res, {
-            resourcePath: __resourcePath,
+            __resourcePath,
             __debugFlag,
             pkgID,
             __usrDir,
@@ -71,6 +79,11 @@ async function init() {
             __update_resource_path,
             isOnline_ptr,
             init_status_ptr,
+            mainWindow_ptr,
+            app,
+            BrowserWindow,
+            Menu,
+            Tray,
             logger: initLogger
         });
     };

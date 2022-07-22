@@ -1,0 +1,17 @@
+{
+    "width": 400,
+    "height": 600,
+    "resizable": false,
+    "minimizable": false,
+    "maximizable": false,
+    "closeable": false,
+    "fullscreen": false,
+    "fullscreenable": false,
+    "alwaysOnTop": false,
+    "skipTaskbar": false,
+    "frame": true,
+    "webPreference": {
+        "nodeIntegration": true,
+        "webSecurity": false
+    }
+}
