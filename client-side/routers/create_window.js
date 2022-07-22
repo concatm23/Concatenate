@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 10:24:26
- * @LastEditTime    : 2022-07-22 11:06:09
+ * @LastEditTime    : 2022-07-22 14:16:25
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\routers\create_window.js
@@ -14,8 +14,8 @@
  */
 const fs = require('fs');
 const path = require('path');
-module.exports = async function create_window(info,map) {
-    return new Promise(function(resolve,reject) {
+module.exports = async function create_window(info, map) {
+    return new Promise(function (resolve, reject) {
         const { logger, __debugFlag, __resourcePath, Menu, BrowserWindow, mainWindow_ptr } = map;
         try {
             var options = JSON.parse(fs.readFileSync(path.join(__resourcePath, 'config', 'window.json')));
@@ -33,6 +33,15 @@ module.exports = async function create_window(info,map) {
         if (__debugFlag)
             mainWindow_ptr.mainWindow.webContents.openDevTools();
         mainWindow_ptr.mainWindow.loadURL(path.join(__resourcePath, 'static-html', 'loading.html?Loading'));
+
+        mainWindow_ptr.mainWindow.on('close', function (e) {
+            e.preventDefault();
+            mainWindow_ptr.mainWindow.hide();
+            mainWindow_ptr.mainWindow.setSkipTaskbar(true);
+
+            //prevent closing
+
+        });
         resolve();
     });
 };

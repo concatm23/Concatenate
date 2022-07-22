@@ -9,7 +9,10 @@ module.exports = async function download_package(void_arg, map) {
             //failed to read
             //download
             await download(map);
+            return resolve();
         };
+
+        logger.info('Current version update time: ',current_version_update_time);
 
         try {
             var remote_version_get_ts_link = fs.readFileSync(path.join(
@@ -27,10 +30,14 @@ module.exports = async function download_package(void_arg, map) {
             logger.error('Failed to get latest release update time.');
             reject('Failed to get latest release update time.');
         };
+
+        logger.info('Remote version update time: ', remote_version_update_time);
+
         if (current_version_update_time < remote_version_update_time) {
             //current up to date
             //update package
             await download(map);
+            return resolve();
         };
         resolve();
     });
