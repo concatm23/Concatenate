@@ -1,10 +1,10 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:54:21
- * @LastEditTime    : 2022-07-22 15:43:38
+ * @LastEditTime    : 2022-07-22 17:00:30
  * @LastEditors     : lihugang
  * @Description     : 
- * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\require.js
+ * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\lib\require.js
  * @Copyright (c) lihugang
  * @长风破浪会有时 直挂云帆济沧海
  * @There will be times when the wind and waves break, and the sails will be hung straight to the sea.
@@ -40,7 +40,7 @@ const fRequireAsync = async function _requireAsync(module) {
             window.exports = window.module.exports;
             //define module & exports
         };
-        let evalFunc = new Function(xhr.responseText);
+        let evalFunc = new Function(code);
         evalFunc(); //run and parse
         let ret_module = window.module.exports;
         window.module.exports = null; //clear
