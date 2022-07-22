@@ -1,10 +1,10 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-18 17:02:29
- * @LastEditTime    : 2022-07-21 22:55:50
+ * @LastEditTime    : 2022-07-22 09:54:19
  * @LastEditors     : lihugang
  * @Description     : 
- * @FilePath        : \git-rebuild\Concatenate\client-side\common.js
+ * @FilePath        : \client-side\common.js
  * @Copyright (c) lihugang
  * @长风破浪会有时 直挂云帆济沧海
  * @There will be times when the wind and waves break, and the sails will be hung straight to the sea.
@@ -21,6 +21,7 @@ if (typeof module == 'undefined') module = {
 const http = require('http');
 const https = require('https');
 const fs = require('fs');
+const chalk = require('chalk')
 async function makeRequest(obj, env) {
     obj = deeply_copy(obj);
     obj = replaceObjects(obj, env);
@@ -102,7 +103,8 @@ if (runInNode) var fetch = function (reqPath, options = {}) {
                 headers: options.headers || {}
             }, res => {
                 var data = '';
-                res.on('data', chunk => {nk;
+                res.on('data', chunk => {
+                    nk;
                 });
                 res.on('end', () => {
                     resolve({
@@ -161,13 +163,7 @@ function convertResponse(data) {
     })
 };
 
-const _iRequire_record = [];
 
-function iRequire(dest) {
-    if (_iRequire_record[dest]) return _iRequire_record[dest];
-    else _iRequire_record[dest] = require(dest);
-    return iRequire(dest);
-};
 _sqlCache = new Map();
 function getSQL(key/*,varibles = {}*/) {
     if (_sqlCache.has(key)) var sql = _sqlCache.get(key);
@@ -265,7 +261,7 @@ logger.prototype.filter = function (level = logger.INFO) {
 logger.prototype.print = function (level, msg) {
     if (level < this.level) return -1; //not print
     const format_string = new StringBuilder();
-    format_string.append('[',new Date().toISOString(), '] ', this.env, ' ');
+    format_string.append('[', new Date().toISOString(), '] ', this.env, ' ');
     return this.print_to_console(format_string, level, msg); //build basic output message
 };
 logger.prototype.print_to_console = function (format_string, level, msg) {
@@ -275,11 +271,15 @@ logger.prototype.print_to_console = function (format_string, level, msg) {
     for (var i = 0, len = msg.length; i < len; ++i) {
         format_string.append(
             (msg[i] instanceof Error) ? (
-                new StringBuilder().append(msg[i].message, '\n', msg[i].stack).toString()
+                msg[i].message + '\n' + msg[i].stack
             ) : (
-                (typeof msg[i] === 'object') ? (
-                    JSON.stringify(msg[i])
-                ) : msg[i].toString()
+                (msg[i] instanceof Function) ? (
+                    msg[i].name
+                ) : (
+                    (typeof msg[i] === 'object') ? (
+                        JSON.stringify(msg[i])
+                    ) : msg[i].toString()
+                )
             )
             , ' ');
     };
@@ -300,7 +300,6 @@ module.exports = {
     replaceString,
     replaceObjects,
     convertResponse,
-    iRequire,
     getSQL,
     sqlInjectionTest,
     deeply_copy,
