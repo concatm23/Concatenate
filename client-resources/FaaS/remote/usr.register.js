@@ -1,8 +1,8 @@
 
-module.exports = async function login(data) {
+module.exports = async function register(data) {
 
-    var logger = new sdk.common.logger('usr.login');
-    var config = (await sdk.getConfig('server')).login_server.login;
+    var logger = new sdk.common.logger('usr.register');
+    var config = (await sdk.getConfig('server')).login_server.register;
     var username = data.username;
     var password = data.password;
     var captcha = data.captcha;
