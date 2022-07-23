@@ -18,7 +18,8 @@
     "register.failed_to_register": "Failed to register",
     "chat.sendMsgButton": "Send",
     "captcha.please_verify_captcha": "Please verify the CAPTCHA.",
-    "ip.waiting_for_ip_loading": "Please waiting for the ip to be showed.",
+    "captcha.ok":"CAPTCHA OK",
+    "ip.waiting_for_ip_loading": "Please waiting for the ip to be loaded.",
     "notification.newMsg": "New message",
     "notification.requestPermission": "You should allow this application to send notifications",
     "dict.login": "login",
@@ -27,5 +28,7 @@
     "dict.username": "username",
     "dict.password": "password",
     "dict.sign_up": "Sign up",
-    "dict.reload": "Reload"
+    "dict.reload": "Reload",
+    "dict.back": "back",
+    "dict.continue": "continue"
 }
