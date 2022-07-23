@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-18 17:02:29
- * @LastEditTime    : 2022-07-23 16:12:47
+ * @LastEditTime    : 2022-07-23 21:41:47
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\common.js
@@ -22,6 +22,7 @@ const http = require('http');
 const https = require('https');
 const fs = require('fs');
 const chalk = require('chalk');
+const path = require('path');
 async function makeRequest(obj, env) {
     obj = deeply_copy(obj);
     obj = replaceObjects(obj, env);
@@ -207,7 +208,10 @@ function getSQL(key/*,varibles = {}*/) {
     if (_sqlCache.has(key)) var sql = _sqlCache.get(key);
     else {
         try {
-            var sql = fs.readFileSync(process.env.APPDATA + '/concatenate.storage/resources/sql/' + key + '.sql');
+            // if (!window || !window.sdk) throw new Error('Cannot find sdk.');
+            const sqlPath = path.join(sdk.getResourcePathSync(), 'sql', key + '.sql');
+            var sql = fs.readFileSync(sqlPath);
+            _sqlCache.set(key,sql);
         } catch (e) {
             return '';
         };
