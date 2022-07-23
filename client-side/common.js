@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-18 17:02:29
- * @LastEditTime    : 2022-07-22 13:50:57
+ * @LastEditTime    : 2022-07-23 13:03:47
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\common.js
@@ -319,7 +319,13 @@ logger.prototype.print_to_console = function (format_string, level, msg) {
                 ) : (
                     (typeof msg[i] === 'object') ? (
                         JSON.stringify(msg[i])
-                    ) : msg[i].toString()
+                    ) : (
+                        (typeof msg[i] === 'undefined') ? (
+                            'undefined'
+                        ) : (
+                            msg[i].toString()
+                        )
+                    )
                 )
             )
             , ' ');
