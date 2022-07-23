@@ -1,10 +1,10 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:54:07
- * @LastEditTime    : 2022-07-23 19:19:46
+ * @LastEditTime    : 2022-07-23 19:44:51
  * @LastEditors     : lihugang
  * @Description     : 
- * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\lib\sdk.js
+ * @FilePath        : \client-resources\lib\sdk.js
  * @Copyright (c) lihugang
  * @长风破浪会有时 直挂云帆济沧海
  * @There will be times when the wind and waves break, and the sails will be hung straight to the sea.
@@ -183,7 +183,7 @@ const remote = {
             if (new Date().getTime() - code.time > CODE_CACHE_EXPIRE_TIME) {
                 //cache expired
                 _do_code_cache.delete(keyname);
-                return remote.do(keyname, args);
+                return remote.do(keyname, ...args);
             };
             //run
             return new Promise(async function (resolve, reject) {
@@ -224,7 +224,7 @@ const remote = {
                 time: new Date().getTime(),
                 func: func
             }); //set cache
-            return remote.do(keyname, func); //run
+            return remote.do(keyname, ...args); //run
         };
     }
 };
