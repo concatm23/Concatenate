@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 15:54:03
- * @LastEditTime    : 2022-07-23 19:59:11
+ * @LastEditTime    : 2022-07-23 20:39:07
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\lib\translation.js
@@ -32,8 +32,32 @@ const translatePage = function () {
     var content = document.body.innerHTML;
     document.body.innerHTML = translate(content);
 };
+const translateElement = function (ele) {
+    if (!ele instanceof HTMLElement && !ele instanceof NodeList && !ele instanceof HTMLCollection) {
+        ele = document.querySelectorAll(ele); //id or class
+    };
+    if (ele instanceof HTMLElement) {
+        //render
+        ele.innerHTML = translate(ele.innerHTML); //translate html
+        var keys = ele.getAttributeNames(); //get all attributes names
+        for (var i = 0, len = keys.length; i < len; ++i) {
+            var val = ele.getAttribute(keys[i]);
+            //translate each attribute
+            val = translate(val);
+            ele.setAttribute(keys[i], val);
+        };
+    } else {
+        //a list or a collection
+        //for each element
+        for (var i = 0; i < ele.length; ++i) {
+            //html collection is dynamic, cannot cache its length
+            translateElement(ele[i]);
+        };
+    };
+};
 module.exports = {
     config,
     translate,
-    translatePage
+    translatePage,
+    translateElement,
 }
