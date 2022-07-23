@@ -1,10 +1,10 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-17 14:41:01
- * @LastEditTime    : 2022-07-22 16:52:14
+ * @LastEditTime    : 2022-07-23 16:28:30
  * @LastEditors     : lihugang
  * @Description     : 
- * @FilePath        : e:\concatenate\git-rebuild\Concatenate\client-side\main.js
+ * @FilePath        : \client-side\main.js
  * @Copyright (c) lihugang
  * @长风破浪会有时 直挂云帆济沧海
  * @There will be times when the wind and waves break, and the sails will be hung straight to the sea.
@@ -20,6 +20,7 @@ const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 const Menu = electron.Menu;
 const Tray = electron.Tray;
+const remote = require('@electron/remote/main');
 const ws = require('ws'); //Web socket
 const crypto = require('crypto'); //Crypto
 const path = require('path'); //path process
@@ -51,6 +52,8 @@ const __update_resource_path = path.join(process.env.APPDATA, `concatenate.${pkg
 const initLogger = new logger('init');
 if (__debugFlag) initLogger.filter(logger.ALL);
 //debug mode, print all logs
+
+remote.initialize(); //initialize the remote module in Electron
 
 async function init() {
     initLogger.info('Initial software');
@@ -115,7 +118,8 @@ async function init() {
             yaml,
             download_file,
             logger: initLogger,
-            Logger: logger
+            Logger: logger,
+            remote,
         });
     };
 };
@@ -144,4 +148,5 @@ var isOnline_ptr = new ptrObject({
 var config_ptr = new ptrObject({
     config: {}
 });
+global.config_ptr = config_ptr;
 

@@ -1,10 +1,10 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 10:24:26
- * @LastEditTime    : 2022-07-22 16:57:34
+ * @LastEditTime    : 2022-07-23 16:06:37
  * @LastEditors     : lihugang
  * @Description     : 
- * @FilePath        : e:\concatenate\git-rebuild\Concatenate\client-side\routers\create_window.js
+ * @FilePath        : \client-side\routers\create_window.js
  * @Copyright (c) lihugang
  * @长风破浪会有时 直挂云帆济沧海
  * @There will be times when the wind and waves break, and the sails will be hung straight to the sea.
@@ -16,7 +16,7 @@ const fs = require('fs');
 const path = require('path');
 module.exports = async function create_window(info, map) {
     return new Promise(function (resolve, reject) {
-        const { logger, __debugFlag, __resourcePath, Menu, BrowserWindow, mainWindow_ptr } = map;
+        const { logger, __debugFlag, __resourcePath, Menu, BrowserWindow, mainWindow_ptr, remote } = map;
         try {
             var options = JSON.parse(fs.readFileSync(path.join(__resourcePath, 'config', 'window.json')));
             //read json config for the main window
@@ -46,6 +46,9 @@ module.exports = async function create_window(info, map) {
             //prevent closing
 
         });
+
+        remote.enable(mainWindow_ptr.mainWindow.webContents); //support running remote in the main window
+        
         resolve();
     });
 };

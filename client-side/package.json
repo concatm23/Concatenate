@@ -49,6 +49,7 @@
     "js-yaml": "^4.1.0",
     "better-sqlite3": "^7.5.3",
     "ws": "^8.7.0",
-    "chalk": "^4.0.0"
+    "chalk": "^4.0.0",
+    "@electron/remote": "^2.0.8"
   }
 }

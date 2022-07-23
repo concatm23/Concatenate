@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-18 17:02:29
- * @LastEditTime    : 2022-07-23 13:03:47
+ * @LastEditTime    : 2022-07-23 16:12:47
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\common.js
@@ -21,7 +21,7 @@ if (typeof module == 'undefined') module = {
 const http = require('http');
 const https = require('https');
 const fs = require('fs');
-const chalk = require('chalk')
+const chalk = require('chalk');
 async function makeRequest(obj, env) {
     obj = deeply_copy(obj);
     obj = replaceObjects(obj, env);

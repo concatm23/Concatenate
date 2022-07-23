@@ -1,3 +1,4 @@
+
 # Concatenate    
 ## Client Side  
 
@@ -15,16 +16,18 @@
 - `better-sqlite3@7.5.3`  
 - `ws@8.7.0`  
 - `chalk@4.0.0`
+- `@electron/remote@2.0.8`
 
 - - -
 **How to install environment and packages:**  
 First, run `npm i electron@18.1.0 --save-dev` to install Electron  
 Next, run  
-- `npm i internet-available@1.0.0 --save`  
-- `npm i js-yaml@4.1.0 --save`
-- `npm i better-sqlite3@7.5.3 --save` 
-- `npm i ws@8.7.0 --save`
-- `npm i chalk@4.0.0 --save`  
+- `npm i internet-available@1.0.0 --save` - Checking internet available  
+- `npm i js-yaml@4.1.0 --save` - Parse yaml to json
+- `npm i better-sqlite3@7.5.3 --save` - Sqlite3 Database 
+- `npm i ws@8.7.0 --save` - WebSocket
+- `npm i chalk@4.0.0 --save` - Colorful letters in CLI  
+- `npm i @electron/remote@2.0.8 --save` - Electron RPC
 
 to install packages  
 You can use `electron .` to run and debug your application.    
