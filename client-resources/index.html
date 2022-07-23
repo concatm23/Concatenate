@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 
 <head>
@@ -16,8 +15,8 @@
     <script src="lib/vue.js"></script>
     <script>
         var node_modules_position = decodeURI(location.search.substring(1)); //get the position of the module
-        node_modules_position = node_modules_position.replaceAll('\\','/'); //convert '\' to '/'
-        localStorage.setItem('node_modules_position',node_modules_position); //store it
+        node_modules_position = node_modules_position.replaceAll('\\', '/'); //convert '\' to '/'
+        localStorage.setItem('node_modules_position', node_modules_position); //store it
 
         const sdk = fRequire('lib/sdk.js');
         const translation = fRequire('lib/translation.js');
@@ -32,7 +31,7 @@
             document.title = translation.translate('@{app.name}');
         });
 
-        sdk.fs.read('loginStatus').then(function (data) { //check login status
+        sdk.fs.read('usr').then(function (data) { //check login status
             data = JSON.parse(data);
             const expire_time = 1000 * 60 * 60 * 24 * 2.5; //2.5 days, 60 hrs
             if (new Date().getTime() - data.login_time > expire_time) {
@@ -50,10 +49,13 @@
             };
         }).catch(function (err) {
             //not login
-            location.href = 'ui/login.html';
+            console.log(err);
+            // location.href = 'ui/login.html';
+
         }) 
     </script>
 </head>
+
 <body>
-    
+
 </body>

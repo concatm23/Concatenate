@@ -1,10 +1,10 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 16:08:33
- * @LastEditTime    : 2022-07-23 19:38:44
+ * @LastEditTime    : 2022-07-23 19:38:51
  * @LastEditors     : lihugang
  * @Description     : 
- * @FilePath        : \client-resources\backend\index.js
+ * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\backend\index.js
  * @Copyright (c) lihugang
  * @长风破浪会有时 直挂云帆济沧海
  * @There will be times when the wind and waves break, and the sails will be hung straight to the sea.
@@ -87,6 +87,6 @@ function msg_process(logger, map) {
     //         });
     //     logger.info('Module path message send');
     // };
-    
+
     //Using RPC instead of message channel
 };

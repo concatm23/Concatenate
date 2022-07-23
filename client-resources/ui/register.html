@@ -1,7 +1,7 @@
 <!--
  * @Author          : chenglan28
  * @Date            : 2022-07-22 18:54:09
- * @LastEditTime    : 2022-07-23 11:16:14
+ * @LastEditTime    : 2022-07-23 19:52:17
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\ui\register.html
@@ -214,7 +214,7 @@
                     localStorage.uid = data.uid;
                     localStorage.token = data.token;
                     register_once = false;
-                    location.href = "../"; //back to index page
+                    location.href = "../index.html"; //back to index page
                 } else { //failed to register
                     msg.tellUser(`${data.code} ${data.data.source_return}`, msg.MSG_ERROR);
                     msg.tellUser(`@{login.server_respond_error}`, msg.MSG_ERROR);

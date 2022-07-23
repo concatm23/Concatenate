@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 15:54:03
- * @LastEditTime    : 2022-07-22 17:51:49
+ * @LastEditTime    : 2022-07-23 19:59:11
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\lib\translation.js
@@ -12,7 +12,7 @@
  * @是非成败转头空 青山依旧在 几度夕阳红
  * @Whether it's right or wrong, success or failure, it's all empty now, and it's all gone with the passage of time. The green hills of the year still exist, and the sun still rises and sets.
  */
-const config = async function (map, basePath) {
+const config = async function (map, basePath = '') {
     const lang = map.lang; //language
     fetch(`${basePath}locales/${lang}`).then(async function (map) {
         window.translation_map = JSON.parse(await map.text());

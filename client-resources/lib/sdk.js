@@ -1,10 +1,10 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:54:07
- * @LastEditTime    : 2022-07-23 19:44:51
+ * @LastEditTime    : 2022-07-23 20:09:17
  * @LastEditors     : lihugang
  * @Description     : 
- * @FilePath        : \client-resources\lib\sdk.js
+ * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\lib\sdk.js
  * @Copyright (c) lihugang
  * @长风破浪会有时 直挂云帆济沧海
  * @There will be times when the wind and waves break, and the sails will be hung straight to the sea.
@@ -20,70 +20,6 @@ const nodeRequireMenu = function (path) {
     return window.nodeRequire(`${localStorage.getItem('node_modules_position')}${path}`);
 };
 
-const fs = {
-    read: async function (fpath, options, callback) {
-        return new Promise((resolve, reject) => {
-            const filesystem = nodeRequire('fs');
-            const path = nodeRequire('path');
-            //local api
-            filesystem.readFile(path.join(
-                __dirname,
-                '../',
-                'dat',
-                fpath
-            ), options, function (err, data) {
-                if (err) return reject('File is not exists or it is not readable.');
-                if (callback) callback(data.toString());
-                resolve(data.toString());
-            });
-        });
-    },
-    readSync: function (fpath, options, callback) {
-        const filesystem = nodeRequire('fs');
-        const path = nodeRequire('path');
-        //local api
-        const content = filesystem.readFileSync(path.join(
-            __dirname,
-            '../',
-            '../',
-            'dat',
-            fpath
-        ), options).toString();
-        if (callback) callback(content);
-        return content;
-    },
-    write: async function (fpath, options, data, callback) {
-        return new Promise((resolve, reject) => {
-            const filesystem = nodeRequire('fs');
-            const path = nodeRequire('path');
-            //local api
-            filesystem.writeFile(path.join(
-                __dirname,
-                '../',
-                '../',
-                'dat',
-                fpath
-            ), data, options, function (err) {
-                if (err) return reject('File is not exists or it is not writable.');
-                if (callback) callback();
-                resolve();
-            });
-        });
-    },
-    writeSync: function (fpath, options, data, callback) {
-        const filesystem = nodeRequire('fs');
-        const path = nodeRequire('path');
-        //local api
-        filesystem.writeFileSync(path.join(
-            __dirname,
-            '../',
-            'dat',
-            fpath
-        ), data, options);
-        if (callback) callback();
-        return;
-    },
-};
 
 const RPC = nodeRequireMenu('@electron/remote'); //remote
 function getConfig(category, callback) {
@@ -101,6 +37,11 @@ function getResourcePath(callback) {
         if (callback) callback(data);
         resolve(data);
     });
+};
+function getResourcePathSync(callback) {
+    var data = RPC.getGlobal('resourcePath') + '/';
+    if (callback) callback(data);
+    return data;
 };
 function getModulePath(name, callback) {
     return new Promise(function (resolve, reject) {
@@ -131,6 +72,73 @@ function once(e, func) {
     on(e, runOnlyOnce);
 };
 
+
+const fs = {
+    read: async function (fpath, options, callback) {
+        return new Promise(async (resolve, reject) => {
+            const filesystem = nodeRequire('fs');
+            const path = nodeRequire('path');
+            //local api
+            const basePath = await getResourcePath();
+            filesystem.readFile(path.join(
+                basePath,
+                '../',
+                'dat',
+                fpath
+            ), options, function (err, data) { //read from concatenate.xxxx/dat
+                if (err) return reject('File is not exists or it is not readable.');
+                if (callback) callback(data.toString());
+                resolve(data.toString());
+            });
+        });
+    },
+    readSync: function (fpath, options, callback) {
+        const filesystem = nodeRequire('fs');
+        const path = nodeRequire('path');
+        //local api
+        const content = filesystem.readFileSync(path.join(
+            getResourcePathSync(),
+            '../',
+            'dat',
+            fpath
+        ), options).toString();//read from concatenate.xxxx/dat
+        if (callback) callback(content);
+        return content;
+    },
+    write: async function (fpath, options, data, callback) {
+        return new Promise(async (resolve, reject) => {
+            const filesystem = nodeRequire('fs');
+            const path = nodeRequire('path');
+            //local api
+            const basePath = await getResourcePath();
+            filesystem.writeFile(path.join(
+                basePath,
+                '../',
+                'dat',
+                fpath
+            ), data, options, function (err) { //write to concatenate.xxxx/dat
+                if (err) return reject('File is not exists or it is not writable.');
+                if (callback) callback();
+                resolve();
+            });
+        });
+    },
+    writeSync: function (fpath, options, data, callback) {
+        const filesystem = nodeRequire('fs');
+        const path = nodeRequire('path');
+        //local api
+        filesystem.writeFileSync(path.join(
+            getResourcePathSync(),
+            '../',
+            'dat',
+            fpath
+        ), data, options); //write to concatenate.xxxx/dat
+        if (callback) callback();
+        return;
+    },
+};
+
+
 function inChinaSync() {
     //check user whether in China
     try {
@@ -138,6 +146,7 @@ function inChinaSync() {
         else var xhr = new ActiveXObject('Microsoft.XMLHTTP');
         xhr.open('GET', 'https://google.com/recaptcha/api.js', false);
         xhr.send();
+        //Because Google is banned in Mainland China, so sending a request to Google can check whether user in China
     } catch (e) {
         console.error(e);
         return true;
@@ -156,6 +165,7 @@ function inChina() {
             else var xhr = new ActiveXObject('Microsoft.XMLHTTP');
             xhr.open('GET', 'https://google.com/recaptcha/api.js', true);
             xhr.send();
+            //Because Google is banned in Mainland China, so sending a request to Google can check whether user in China
             xhr.ontimeout = function () { resolve(true); };
             xhr.onabort = function () { resolve(true); };
             xhr.onerror = function () { resolve(true); };
@@ -192,10 +202,10 @@ const remote = {
                 } catch (e) {
                     resolve({
                         status: 'error',
-                        json: function() {
+                        json: function () {
                             throw e;
                         },
-                        text: function() {
+                        text: function () {
                             return e.toString()
                         }
                     });
@@ -203,14 +213,14 @@ const remote = {
                 };
                 resolve({
                     status: 'ok',
-                    json: function() {
+                    json: function () {
                         return JSON.parse(ret_value)
                     },
-                    text: function() {
+                    text: function () {
                         return ret_value
                     }
                 });
-                
+
             });
         } else {
             const resourcePath = await getResourcePath();
@@ -239,13 +249,13 @@ function bug_report(e) {
             type: 'client',
             level: 'error',
             data: {
-                position: e.lineno?(
+                position: e.lineno ? (
                     `${e.filename || 'null'} ${e.lineno || -1}:${e.colno || -1}`
-                ): e.reason.stack
+                ) : e.reason.stack
                 ,
                 error_number: e.error,
                 ts: e.timestamp,
-                reason: (e.reason)?(e.reason.message):(e.message)
+                reason: (e.reason) ? (e.reason.message) : (e.message)
             }
         })
     });
