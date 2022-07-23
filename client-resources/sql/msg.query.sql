@@ -1,0 +1,1 @@
+SELECT * FROM group${group_id} WHERE uid = @uid AND timestamp >= @timestamp;

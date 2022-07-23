@@ -1,0 +1,1 @@
+SELECT * FROM list WHERE user_uid = @uid

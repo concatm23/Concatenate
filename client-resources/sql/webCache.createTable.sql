@@ -1,0 +1,5 @@
+CREATE TABLE cache(
+    list_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    cache_key VARCHAR(255) NOT NULL UNIQUE,
+    cache_value BLOB
+)

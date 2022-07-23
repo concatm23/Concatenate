@@ -1,0 +1,2 @@
+INSERT INTO list (group_id,alias,join_time,last_read,last_msg,is_on_top,is_show,user_uid,group_type)
+VALUES (@group_id, @alias, @join_time, @last_read, @last_msg, @is_on_top, @is_show, @user_uid, @group_type)

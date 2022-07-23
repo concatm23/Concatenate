@@ -1,0 +1,1 @@
+SELECT cache_value FROM cache WHERE cache_key = @key
