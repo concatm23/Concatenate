@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:54:07
- * @LastEditTime    : 2022-07-23 20:09:17
+ * @LastEditTime    : 2022-07-23 21:34:51
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\lib\sdk.js
@@ -243,19 +243,39 @@ function bug_report(e) {
     console.error(e);
     //bug trace
     const bug_report_uri = 'https://log-concatenate.deta.dev';
+    var path = e.path || [];
+    for (var i = 0, len = path.length; i < len; i++) {
+        //process path in order to prevent circle
+        try {
+            if (JSON.stringify(path[i]) == '{}') {
+                //html elements
+                //cannot get any useful information
+                //extract something useful
+                var attribute_names = path[i].getAttributeNames();
+                var attributes = {};
+                attribute_names.forEach(function(val) {
+                    attributes[val] = path[i].getAttribute(val);
+                });
+                path[i] = attributes;
+            };
+        } catch (e) {
+            path[i] = path[i].toString();
+        };
+    };
     fetch(bug_report_uri, {
         method: 'POST',
         body: JSON.stringify({
             type: 'client',
             level: 'error',
             data: {
-                position: e.lineno ? (
+                position: (!e.reason) ? (
                     `${e.filename || 'null'} ${e.lineno || -1}:${e.colno || -1}`
                 ) : e.reason.stack
                 ,
                 error_number: e.error,
                 ts: e.timestamp,
-                reason: (e.reason) ? (e.reason.message) : (e.message)
+                reason: (e.reason) ? (e.reason.message) : (e.message),
+                path: path,
             }
         })
     });
@@ -282,5 +302,7 @@ module.exports = {
     remote,
     nodeRequire: nodeRequireMenu,
     common: nodeRequireMenu('common'), //common modules
-    crypto: nodeRequire('crypto')
+    crypto: nodeRequire('crypto'),
+    getResourcePath,
+    getResourcePathSync,
 };
