@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:25:26
- * @LastEditTime    : 2022-07-22 16:59:11
+ * @LastEditTime    : 2022-07-23 16:20:41
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\routers\load_service.js
@@ -13,18 +13,18 @@
  * @Whether it's right or wrong, success or failure, it's all empty now, and it's all gone with the passage of time. The green hills of the year still exist, and the sun still rises and sets.
  */
 const path = require('path');
-module.exports = async function(void_args, map) {
+module.exports = async function (void_args, map) {
     const { Logger, mainWindow_ptr, __update_resource_path } = map;
     const logger = new Logger('service');
     logger.info('Service started.');
 
     //load index page
     mainWindow_ptr.mainWindow.loadURL(path.join(
-        __update_resource_path, 
-        'index.html'
+        __update_resource_path,
+        `index.html?${path.join(__dirname,'..', 'node_modules')}/` //set modules path ('..' because of subdirectory) 
     ));
     //resources/index.html
-    logger.info('Load URL: ' , path.join(__update_resource_path, 'index.html'));
+    logger.info('Load URL: ', path.join(__update_resource_path, 'index.html'));
     const func = require(path.join(
         __update_resource_path,
         'backend',

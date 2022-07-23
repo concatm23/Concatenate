@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 
 <head>
@@ -14,6 +15,10 @@
     <script src="lib/require.js"></script>
     <script src="lib/vue.js"></script>
     <script>
+        var node_modules_position = decodeURI(location.search.substring(1)); //get the position of the module
+        node_modules_position = node_modules_position.replaceAll('\\','/'); //convert '\' to '/'
+        localStorage.setItem('node_modules_position',node_modules_position); //store it
+
         const sdk = fRequire('lib/sdk.js');
         const translation = fRequire('lib/translation.js');
 
