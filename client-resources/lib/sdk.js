@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:54:07
- * @LastEditTime    : 2022-07-23 17:43:31
+ * @LastEditTime    : 2022-07-23 19:19:46
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\lib\sdk.js
@@ -45,6 +45,7 @@ const fs = {
         const content = filesystem.readFileSync(path.join(
             __dirname,
             '../',
+            '../',
             'dat',
             fpath
         ), options).toString();
@@ -58,6 +59,7 @@ const fs = {
             //local api
             filesystem.writeFile(path.join(
                 __dirname,
+                '../',
                 '../',
                 'dat',
                 fpath
@@ -93,7 +95,13 @@ function getConfig(category, callback) {
         resolve(data);
     });
 };
-
+function getResourcePath(callback) {
+    return new Promise(function (resolve, reject) {
+        var data = RPC.getGlobal('resourcePath') + '/';
+        if (callback) callback(data);
+        resolve(data);
+    });
+};
 function getModulePath(name, callback) {
     return new Promise(function (resolve, reject) {
         var data = localStorage.getItem('node_modules_position') + name;
@@ -179,8 +187,30 @@ const remote = {
             };
             //run
             return new Promise(async function (resolve, reject) {
-                const ret_value = await code.func(...args);
-                resolve(ret_value);
+                try {
+                    var ret_value = await code.func(...args);
+                } catch (e) {
+                    resolve({
+                        status: 'error',
+                        json: function() {
+                            throw e;
+                        },
+                        text: function() {
+                            return e.toString()
+                        }
+                    });
+                    return;
+                };
+                resolve({
+                    status: 'ok',
+                    json: function() {
+                        return JSON.parse(ret_value)
+                    },
+                    text: function() {
+                        return ret_value
+                    }
+                });
+                
             });
         } else {
             const resourcePath = await getResourcePath();
@@ -240,5 +270,7 @@ module.exports = {
     inChinaSync,
     inChina,
     remote,
-    nodeRequire: nodeRequireMenu
+    nodeRequire: nodeRequireMenu,
+    common: nodeRequireMenu('common'), //common modules
+    crypto: nodeRequire('crypto')
 };
