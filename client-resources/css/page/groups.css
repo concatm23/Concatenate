@@ -1,0 +1,19 @@
+.title {
+    width: 95%;
+    float: center;
+    text-align: center;
+}
+
+.software-title {
+    font-size: 1.3em;
+}
+
+.switch-button {
+    position: fixed;
+    bottom: 0px;
+    background-color: white;
+}
+
+.switch-button-icon {
+    position: absolute;
+}
