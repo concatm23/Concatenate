@@ -1,8 +1,8 @@
 <!--
  * @Author          : chenglan28
  * @Date            : 2022-07-22 15:46:01
- * @LastEditTime    : 2022-07-22 15:48:35
- * @LastEditors     : chenglan28
+ * @LastEditTime    : 2022-07-23 18:25:14
+ * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\static-html\loading.html
  * Copyright (c) concatenate
@@ -38,7 +38,7 @@
             <span class="load">.</span>
         </div>
         <script>
-            document.querySelector('#load-show-content').innerHTML = location.search.substring(1);
+            document.querySelector('#load-show-content').innerHTML = decodeURI(location.search.substring(1));
             var elem = document.getElementsByClassName("load");
             var l = elem.length;
             var tick = 0;
