@@ -1,10 +1,10 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:54:07
- * @LastEditTime    : 2022-07-23 16:43:13
+ * @LastEditTime    : 2022-07-23 17:43:31
  * @LastEditors     : lihugang
  * @Description     : 
- * @FilePath        : \client-resources\lib\sdk.js
+ * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\lib\sdk.js
  * @Copyright (c) lihugang
  * @长风破浪会有时 直挂云帆济沧海
  * @There will be times when the wind and waves break, and the sails will be hung straight to the sea.
@@ -16,7 +16,8 @@
 
 const nodeRequireMenu = function (path) {
     //auto set require path
-    return window.nodeRequire(`${localStorage.getItem('node_modules_position')}${path}`)
+    if (path == 'common') return window.nodeRequire(`${localStorage.getItem('node_modules_position')}../common.js`); //common functions with frontend and backend
+    return window.nodeRequire(`${localStorage.getItem('node_modules_position')}${path}`);
 };
 
 const fs = {
@@ -81,7 +82,7 @@ const fs = {
         return;
     },
 };
-const ipcRenderer = ((window.nodeRequire || window.require || console.log)('electron') || {}).ipcRenderer;
+
 const RPC = nodeRequireMenu('@electron/remote'); //remote
 function getConfig(category, callback) {
     return new Promise(function (resolve, reject) {
@@ -92,6 +93,7 @@ function getConfig(category, callback) {
         resolve(data);
     });
 };
+
 function getModulePath(name, callback) {
     return new Promise(function (resolve, reject) {
         var data = localStorage.getItem('node_modules_position') + name;
@@ -163,13 +165,9 @@ function inChina() {
     });
 };
 
-ipcRenderer.on('msg', function (e, data) {
-    console.info('Received data from server', data);
-})
-
 const _do_code_cache = new Map();
 const remote = {
-    do: function (keyname, ...args) {
+    do: async function (keyname, ...args) {
         const CODE_CACHE_EXPIRE_TIME = 10 * 60 * 1000; //10min
         if (_do_code_cache.has(keyname)) {
             //in cache
@@ -185,10 +183,10 @@ const remote = {
                 resolve(ret_value);
             });
         } else {
+            const resourcePath = await getResourcePath();
             try {
-                var func = fRequire('FaaS/' + keyname + '.js');
+                var func = fRequire(resourcePath + 'FaaS/remote/' + keyname + '.js');
             } catch (e) {
-                var func = fRequire('../FaaS/' + keyname + '.js'); //for sub directories
             };
             //include functions
 
@@ -200,6 +198,32 @@ const remote = {
         };
     }
 };
+
+function bug_report(e) {
+    console.error(e);
+    //bug trace
+    const bug_report_uri = 'https://log-concatenate.deta.dev';
+    fetch(bug_report_uri, {
+        method: 'POST',
+        body: JSON.stringify({
+            type: 'client',
+            level: 'error',
+            data: {
+                position: e.lineno?(
+                    `${e.filename || 'null'} ${e.lineno || -1}:${e.colno || -1}`
+                ): e.reason.stack
+                ,
+                error_number: e.error,
+                ts: e.timestamp,
+                reason: (e.reason)?(e.reason.message):(e.message)
+            }
+        })
+    });
+};
+window.addEventListener('error', bug_report, true);
+window.addEventListener('unhandledrejection', bug_report, true);
+window.addEventListener('rejectionhandled', bug_report, true);
+
 
 module.exports = {
     env: 'app',

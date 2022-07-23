@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-17 14:41:01
- * @LastEditTime    : 2022-07-23 16:28:30
+ * @LastEditTime    : 2022-07-23 16:55:57
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\main.js
@@ -150,3 +150,18 @@ var config_ptr = new ptrObject({
 });
 global.config_ptr = config_ptr;
 
+//bug report
+process.on('uncaughtException',async (err) => {
+    //something error
+    currentLogger.error(err);
+    const bug_report_uri = 'https://log-concatenate.deta.dev';
+    await fetch(bug_report_uri, { 
+        method: 'POST',
+        body: JSON.stringify({
+            type: 'client',
+            level: 'error',
+            data: err.message + '\n' + err.stack
+        })
+    });
+    process.exit(1);
+});
