@@ -1,6 +1,6 @@
 {
   "name": "Concatenate",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "main": "main.js",
   "devDependencies": {
     "electron": "^18.1.0",
@@ -11,7 +11,15 @@
   "build": {
     "productName": "Concatenate",
     "files": [
-      "./"
+      "main.js",
+      "common.js",
+      "icon.ico",
+      "package.json",
+      "package-lock.json",
+      "config",
+      "routers",
+      "static-html",
+      "node-modules"
     ],
     "appId": "com.concatenate.concatenate",
     "copyright": "Copyright (c) 2022 concatenate",

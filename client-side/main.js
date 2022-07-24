@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-17 14:41:01
- * @LastEditTime    : 2022-07-23 17:56:22
+ * @LastEditTime    : 2022-07-24 13:21:39
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\main.js
@@ -20,6 +20,7 @@ const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 const Menu = electron.Menu;
 const Tray = electron.Tray;
+const dialog = electron.dialog;
 const remote = require('@electron/remote/main');
 const ws = require('ws'); //Web socket
 const crypto = require('crypto'); //Crypto
@@ -38,7 +39,7 @@ var mainWindow_ptr = new ptrObject({
     mainWindow
 });
 
-const __resourcePath = (process.argv.indexOf('--fs') != -1) ? __dirname : `${__dirname}/resources/app.asar`;
+const __resourcePath = (process.argv.indexOf('--fs') != -1 || true) ? __dirname : `${__dirname}/resources/app.asar`;
 
 const __debugFlag = (process.argv.indexOf('--debug') != -1) ? true : false;
 
@@ -155,7 +156,7 @@ global.config_ptr = config_ptr;
 //bug report
 process.on('uncaughtException',async (err) => {
     //something error
-    currentLogger.error(err);
+    (new logger('setup')).error(err);
     const bug_report_uri = 'https://log-concatenate.deta.dev';
     await fetch(bug_report_uri, { 
         method: 'POST',
@@ -165,5 +166,22 @@ process.on('uncaughtException',async (err) => {
             data: err.message + '\n' + err.stack
         })
     });
+    dialog.showErrorBox('Error', err.message);
+    process.exit(1);
+});
+
+process.on('unhandledRejection', async (err) => {
+    //something error
+    (new logger('setup')).error(err);
+    const bug_report_uri = 'https://log-concatenate.deta.dev';
+    await fetch(bug_report_uri, {
+        method: 'POST',
+        body: JSON.stringify({
+            type: 'client',
+            level: 'error',
+            data: err.message + '\n' + err.stack
+        })
+    });
+    dialog.showErrorBox('Error', err.message);
     process.exit(1);
 });
