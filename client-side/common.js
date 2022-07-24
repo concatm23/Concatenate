@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-18 17:02:29
- * @LastEditTime    : 2022-07-24 13:20:14
+ * @LastEditTime    : 2022-07-24 13:57:55
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\common.js
@@ -143,7 +143,7 @@ if (runInNode) var download_file = async function (reqPath, options = {}, savePa
                 if (res.statusCode >= 300 && res.statusCode <= 399) {
                     //forward
                     resolve(download_file(res.headers.location, options, savePath));
-                } else if (res.statusCode <= 200 || res.statusCode >= 400) {
+                } else if (res.statusCode < 200 || res.statusCode >= 400) {
                     //bad http code
                     //download error
                     reject('Bad Http Status: ' + res.statusCode);
@@ -162,7 +162,7 @@ if (runInNode) var download_file = async function (reqPath, options = {}, savePa
         });
     } catch (e) {
         return new Promise(function (resolve, reject) {
-            reject('Bad URL');
+            reject('Bad URL: ' + reqPath);
         })
     };
 };

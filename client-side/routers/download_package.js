@@ -49,6 +49,7 @@ module.exports = async function download_package(void_arg, map) {
 
 const download = async function (map) {
     const {__resourcePath, download_file, __update_resource_path, logger, mainWindow_ptr} = map;
+    const fs = require('fs');
     mainWindow_ptr.mainWindow.loadURL(path.join(__resourcePath, 'static-html', 'loading.html?Download latest package from the server.'));
     try {
         var remote_version_update_link = fs.readFileSync(path.join(
@@ -70,7 +71,9 @@ const download = async function (map) {
             'X-Arch': process.arch
             //send environment information
         }
-    },__update_resource_path);
+    },__update_resource_path + '.archive');
+    //rename archive to asar
+    fs.renameSync(__update_resource_path + '.archive', __update_resource_path);
     logger.info('Download Successfully');
     return;
 };

@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-17 14:41:01
- * @LastEditTime    : 2022-07-24 13:21:39
+ * @LastEditTime    : 2022-07-24 13:43:13
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\main.js
@@ -163,25 +163,28 @@ process.on('uncaughtException',async (err) => {
         body: JSON.stringify({
             type: 'client',
             level: 'error',
-            data: err.message + '\n' + err.stack
+            data: {
+                message: err.message,
+                stack: err.stack
+            }
         })
     });
     dialog.showErrorBox('Error', err.message);
     process.exit(1);
 });
 
-process.on('unhandledRejection', async (err) => {
+process.on('unhandledRejection', async (reason,promise) => {
     //something error
-    (new logger('setup')).error(err);
+    (new logger('setup')).error(reason);
     const bug_report_uri = 'https://log-concatenate.deta.dev';
     await fetch(bug_report_uri, {
         method: 'POST',
         body: JSON.stringify({
             type: 'client',
             level: 'error',
-            data: err.message + '\n' + err.stack
+            data: reason
         })
     });
-    dialog.showErrorBox('Error', err.message);
+    dialog.showErrorBox('Error', reason.toString());
     process.exit(1);
 });
