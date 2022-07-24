@@ -18,7 +18,7 @@
     "register.failed_to_register": "Failed to register",
     "groups.list":"Groups list",
     "groups.file":"File",
-    "groups.setting": "Setting",
+    "groups.settings": "Settings",
     "chat.sendMsgButton": "Send",
     "captcha.please_verify_captcha": "Please verify the CAPTCHA.",
     "captcha.ok":"CAPTCHA OK",

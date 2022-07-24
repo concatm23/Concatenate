@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:54:07
- * @LastEditTime    : 2022-07-23 21:34:51
+ * @LastEditTime    : 2022-07-23 22:34:08
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\lib\sdk.js
@@ -136,6 +136,49 @@ const fs = {
         if (callback) callback();
         return;
     },
+    exists: function (fpath, callback) {
+        return new Promise(function (resolve, reject) {
+            const filesystem = nodeRequire('fs');
+            const path = nodeRequire('path');
+            //local api
+            filesystem.open(path.join(
+                getResourcePathSync(),
+                '../',
+                'dat',
+                fpath
+                ,), 'r' /* read mode */,
+                function (err, fd) {
+                    if (err) { //failed to open
+                        if (callback) callback(false);
+                        resolve(false);
+                    } else {
+                        filesystem.close(fd); //async
+                        if (callback) callback(true);
+                        resolve(true);
+                    };
+                });
+        });
+    },
+    existsSync: function (fpath, callback) {
+        const filesystem = nodeRequire('fs');
+        const path = nodeRequire('path');
+        try {
+            const fd = filesystem.openSync(path.join(
+                getResourcePathSync(),
+                '../',
+                'dat',
+                fpath
+            ), 'r');
+            filesystem.closeSync(fd);
+        } catch (e) {
+            //open error
+            if (callback) callback(false);
+            return false;
+        };
+
+        if (callback) callback(true);
+        return true;
+    }
 };
 
 
@@ -187,12 +230,12 @@ const _do_code_cache = new Map();
 const remote = {
     do: async function (keyname, ...args) {
         const CODE_CACHE_EXPIRE_TIME = 10 * 60 * 1000; //10min
-        if (_do_code_cache.has(keyname)) {
+        if (_do_code_cache.has('remote.' + keyname)) {
             //in cache
-            var code = _do_code_cache.get(keyname);
+            var code = _do_code_cache.get('remote.' + keyname);
             if (new Date().getTime() - code.time > CODE_CACHE_EXPIRE_TIME) {
                 //cache expired
-                _do_code_cache.delete(keyname);
+                _do_code_cache.delete('remote.' + keyname);
                 return remote.do(keyname, ...args);
             };
             //run
@@ -230,11 +273,65 @@ const remote = {
             };
             //include functions
 
-            _do_code_cache.set(keyname, {
+            _do_code_cache.set('remote.' + keyname, {
                 time: new Date().getTime(),
                 func: func
             }); //set cache
             return remote.do(keyname, ...args); //run
+        };
+    }
+};
+const local = {
+    do: async function (keyname, ...args) {
+        const CODE_CACHE_EXPIRE_TIME = 10 * 60 * 1000; //10min
+        if (_do_code_cache.has('local.' + keyname)) {
+            //in cache
+            var code = _do_code_cache.get('local.' + keyname);
+            if (new Date().getTime() - code.time > CODE_CACHE_EXPIRE_TIME) {
+                //cache expired
+                _do_code_cache.delete('local.' + keyname);
+                return local.do(keyname, ...args);
+            };
+            //run
+            return new Promise(async function (resolve, reject) {
+                try {
+                    var ret_value = await code.func(...args);
+                } catch (e) {
+                    resolve({
+                        status: 'error',
+                        json: function () {
+                            throw e;
+                        },
+                        text: function () {
+                            return e.toString()
+                        }
+                    });
+                    return;
+                };
+                resolve({
+                    status: 'ok',
+                    json: function () {
+                        return JSON.parse(ret_value)
+                    },
+                    text: function () {
+                        return ret_value
+                    }
+                });
+
+            });
+        } else {
+            const resourcePath = await getResourcePath();
+            try {
+                var func = fRequire(resourcePath + 'FaaS/local/' + keyname + '.js');
+            } catch (e) {
+            };
+            //include functions
+
+            _do_code_cache.set('local.' + keyname, {
+                time: new Date().getTime(),
+                func: func
+            }); //set cache
+            return local.do(keyname, ...args); //run
         };
     }
 };
@@ -253,7 +350,7 @@ function bug_report(e) {
                 //extract something useful
                 var attribute_names = path[i].getAttributeNames();
                 var attributes = {};
-                attribute_names.forEach(function(val) {
+                attribute_names.forEach(function (val) {
                     attributes[val] = path[i].getAttribute(val);
                 });
                 path[i] = attributes;
@@ -284,6 +381,51 @@ window.addEventListener('error', bug_report, true);
 window.addEventListener('unhandledrejection', bug_report, true);
 window.addEventListener('rejectionhandled', bug_report, true);
 
+const db = {
+    sqlite3: nodeRequireMenu('better-sqlite3'),
+    get msg() {
+        //return message database
+        if (db._msg_db) return db._msg_db; //if the db is open, return it
+        //create db object
+        const path = nodeRequire('path');
+        if (sdk.fs.existsSync('msg')) {
+            //db is exists
+            return db._msg_db = new db.sqlite3(path.join(
+                getResourcePathSync(),
+                '../',
+                'dat',
+                'msg'
+            )); //concatenate.xxx/dat/msg
+        } else {
+            db._msg_db = new db.sqlite3(path.join(getResourcePathSync(), '../', 'dat', 'msg')); //concatenate.xxx/dat/msg
+            //create table
+            db._msg_db.prepare(sdk.common.getSQL('msg.createListTable')).run();
+            return db._msg_db;
+        }
+    },
+    get webCache() {
+        //return message database
+        if (db._web_cache_db) return db._web_cache_db; //if the db is open, return it
+        //create db object
+        const path = nodeRequire('path');
+        if (sdk.fs.existsSync('web_cache')) {
+            //db is exists
+            return db._web_cache_db = new db.sqlite3(path.join(
+                getResourcePathSync(),
+                '../',
+                'dat',
+                'web_cache'
+            )); //concatenate.xxx/dat/web_cache
+        } else {
+            db._web_cache_db = new db.sqlite3(path.join(getResourcePathSync(), '../', 'dat', 'web_cache')); //concatenate.xxx/dat/web_cache
+            //create table
+            db._web_cache_db.prepare(sdk.common.getSQL('webCache.createTable')).run();
+            //create index
+            db._web_cache_db.prepare(sdk.common.getSQL('webCache.createIndex')).run();
+            return db._web_cache_db;
+        }
+    }
+};
 
 module.exports = {
     env: 'app',
@@ -300,9 +442,11 @@ module.exports = {
     inChinaSync,
     inChina,
     remote,
+    local,
     nodeRequire: nodeRequireMenu,
     common: nodeRequireMenu('common'), //common modules
     crypto: nodeRequire('crypto'),
     getResourcePath,
     getResourcePathSync,
+    _db: db
 };

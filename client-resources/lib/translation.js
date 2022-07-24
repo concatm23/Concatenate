@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 15:54:03
- * @LastEditTime    : 2022-07-23 20:39:07
+ * @LastEditTime    : 2022-07-23 21:54:40
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\lib\translation.js
@@ -33,7 +33,7 @@ const translatePage = function () {
     document.body.innerHTML = translate(content);
 };
 const translateElement = function (ele) {
-    if (!ele instanceof HTMLElement && !ele instanceof NodeList && !ele instanceof HTMLCollection) {
+    if (typeof(ele) === 'string') {
         ele = document.querySelectorAll(ele); //id or class
     };
     if (ele instanceof HTMLElement) {

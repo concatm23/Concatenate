@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-23 20:15:08
- * @LastEditTime    : 2022-07-23 21:22:57
+ * @LastEditTime    : 2022-07-23 21:53:20
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\groups.render.js
@@ -28,7 +28,7 @@ module.exports = {
     },
     renderSwitchButton: function() {
         //translate switch button alts
-        translation.translate('.switch-button');
+        translation.translateElement('.switch-button');
         var eles = document.querySelectorAll('.switch-button-icon');
         var space = (window.innerWidth - (48 + 4) * eles.length) / (eles.length - 1);
         
