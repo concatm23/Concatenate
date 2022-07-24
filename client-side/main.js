@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-17 14:41:01
- * @LastEditTime    : 2022-07-24 14:53:34
+ * @LastEditTime    : 2022-07-24 14:55:46
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\main.js
@@ -186,7 +186,11 @@ process.on('unhandledRejection', async (reason,promise) => {
         body: JSON.stringify({
             type: 'client',
             level: 'error',
-            data: reason
+            data: reason,
+            env: 'client setup',
+            version: process.version,
+            platform: process.platform.toLowerCase(),
+            arch: process.arch.toLowerCase()
         })
     });
     dialog.showErrorBox('Error', reason.toString());
