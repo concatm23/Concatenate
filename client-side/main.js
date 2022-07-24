@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-17 14:41:01
- * @LastEditTime    : 2022-07-24 13:43:13
+ * @LastEditTime    : 2022-07-24 14:53:34
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\main.js
@@ -166,7 +166,11 @@ process.on('uncaughtException',async (err) => {
             data: {
                 message: err.message,
                 stack: err.stack
-            }
+            },
+            env: 'client setup',
+            version: process.version,
+            platform: process.platform.toLowerCase(),
+            arch: process.arch.toLowerCase()
         })
     });
     dialog.showErrorBox('Error', err.message);

@@ -1,10 +1,10 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:54:07
- * @LastEditTime    : 2022-07-23 22:34:08
+ * @LastEditTime    : 2022-07-24 14:51:28
  * @LastEditors     : lihugang
  * @Description     : 
- * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\lib\sdk.js
+ * @FilePath        : \client-resources\lib\sdk.js
  * @Copyright (c) lihugang
  * @长风破浪会有时 直挂云帆济沧海
  * @There will be times when the wind and waves break, and the sails will be hung straight to the sea.
@@ -13,6 +13,7 @@
  * @Whether it's right or wrong, success or failure, it's all empty now, and it's all gone with the passage of time. The green hills of the year still exist, and the sun still rises and sets.
  */
 //app sdk
+const env = 'app';
 
 const nodeRequireMenu = function (path) {
     //auto set require path
@@ -373,7 +374,11 @@ function bug_report(e) {
                 ts: e.timestamp,
                 reason: (e.reason) ? (e.reason.message) : (e.message),
                 path: path,
-            }
+            },
+            env: env,
+            version: (window.process && window.process.version) || (window.navigator.appVersion),
+            platform: ((window.process && window.process.platform) || (window.navigator.platform) || 'unknown').toLowerCase(),
+            arch: (window.process && window.process.arch) || ((window.navigator.userAgent.toLowercase().indexOf('x64') == -1) ? 'ia32' : 'x64')
         })
     });
 };
@@ -428,7 +433,7 @@ const db = {
 };
 
 module.exports = {
-    env: 'app',
+    env: env,
     platform: navigator.platform.toLowerCase(),
     fs: fs,
     getConfig: getConfig,
