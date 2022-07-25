@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:54:21
- * @LastEditTime    : 2022-07-22 17:00:30
+ * @LastEditTime    : 2022-07-25 12:54:21
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\lib\require.js
@@ -16,7 +16,14 @@ const fRequire = function _require(module) {
     if (window.XMLHttpRequest) var xhr = new XMLHttpRequest();
     else var xhr = new ActiveXObject('Microsoft.XMLHTTP');
     xhr.open('GET', module, false); //get source code sync
-    xhr.send();
+    xhr.onerror = function() { throw new Error('Cannot find module ' + module); };
+    try {
+        xhr.send();
+    } catch (e) { throw new Error('Cannot find module ' + module); };
+    if (xhr.status < 200 || xhr.status >= 400) {
+        //request error
+        throw new Error('Cannot find module ' + module);
+    };
     if (!module || !module.exports) {
         window.module = {
             exports: null
@@ -31,8 +38,10 @@ const fRequire = function _require(module) {
     return ret_module;
 };
 const fRequireAsync = async function _requireAsync(module) {
-    return new Promise((resolve, reject) => {
-        var code = await(await(fetch(module))).text();
+    return new Promise(async (resolve, reject) => {
+        const response = await fetch(module);
+        if (!response.ok) throw new Error('Cannot find module ' + module);
+        var code = await(response).text();
         if (!module || !module.exports) {
             window.module = {
                 exports: null
