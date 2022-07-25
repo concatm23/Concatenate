@@ -7,7 +7,7 @@
     "login.server_respond_error": "Servers responded with an error.",
     "login.connecting_server": "Connecting to the server...",
     "login.failed_to_login": "Failed to login",
-    "login.auto_login": "Keep login",
+    "login.auto_login": "Remember my username and password",
     "login.setting_up_connections": "Setting up connections...",
     "login.agreements_tip": "By logging in, you must agree our <a href=https://concatenate.deta.dev/agreements/user target=_blank>User Agreement</a> and <a href=https://concatenate.deta.dev/agreements/privacy target=_blank>Privacy Policy</a>",
     "register.agreements_tip": "By signing up, you must agree our <a href=https://concatenate.deta.dev/agreements/user target=_blank>User Agreement</a> and <a href=https://concatenate.deta.dev/agreements/privacy target=_blank>Privacy Policy</a>",
