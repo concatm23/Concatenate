@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-18 17:02:29
- * @LastEditTime    : 2022-07-24 13:57:55
+ * @LastEditTime    : 2022-07-25 09:27:47
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\common.js
@@ -346,6 +346,19 @@ logger.prototype.fatal = function (...msg) { return this.print(logger.FATAL, msg
 logger.prototype.mark = function (...msg) { return this.print(logger.MARK, msg) };
 logger.prototype.off = function (...msg) { return this.print(logger.OFF, msg) };
 
+const store = {
+    _data: {},
+    set: function(key,value) {
+        store._data[key] = value;
+    },
+    get: function(key) {
+        return store._data[key];
+    },
+    delete: function(key) {
+        delete store._data[key];
+    }
+};
+
 module.exports = {
     makeRequest,
     fetch,
@@ -357,5 +370,6 @@ module.exports = {
     deeply_copy,
     StringBuilder,
     logger,
-    download_file
+    download_file,
+    store
 };

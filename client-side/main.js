@@ -1,10 +1,10 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-17 14:41:01
- * @LastEditTime    : 2022-07-24 14:55:46
+ * @LastEditTime    : 2022-07-25 21:04:37
  * @LastEditors     : lihugang
  * @Description     : 
- * @FilePath        : \client-side\main.js
+ * @FilePath        : e:\Concatenate\git-rebuild\Concatenate\client-side\main.js
  * @Copyright (c) lihugang
  * @长风破浪会有时 直挂云帆济沧海
  * @There will be times when the wind and waves break, and the sails will be hung straight to the sea.
@@ -15,7 +15,7 @@
 const electron = require('electron'); // Electron web app
 const fs = require('fs'); //FileSystem
 const yaml = require('js-yaml'); //yaml parser
-const { fetch, makeRequest, logger, StringBuilder, download_file } = require('./common.js');
+const { fetch, logger, download_file, store } = require('./common.js');
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 const Menu = electron.Menu;
@@ -68,7 +68,7 @@ async function init() {
             'init_folder.js'
         )),
         require(path.join(
-            __resourcePath, 
+            __resourcePath,
             'routers',
             'check_internet.js'
         )),
@@ -101,7 +101,7 @@ async function init() {
     //require tasks that setup will be used
     //Init Folder -> Check Internet -> Create Window -> Create Tray -> Read Config -> Download Package Resources -> Load Service
     for (var i = 0; i < callee.length; i++) {
-        initLogger.info('Call function',callee[i]);
+        initLogger.info('Call function', callee[i]);
         res = await callee[i](res, {
             __resourcePath,
             __debugFlag,
@@ -133,7 +133,7 @@ if (!key) {
     app.quit(); //get lock failed, one more instances
 } else {
     new logger('check').info('Get Signal Instance Lock');
-    app.on('ready',init); 
+    app.on('ready', init);
     app.on('window-all-closed', () => {
         app.quit();
     })
@@ -153,12 +153,14 @@ var config_ptr = new ptrObject({
 });
 global.config_ptr = config_ptr;
 
+global.store = store;
+
 //bug report
-process.on('uncaughtException',async (err) => {
+process.on('uncaughtException', async (err) => {
     //something error
     (new logger('setup')).error(err);
     const bug_report_uri = 'https://log-concatenate.deta.dev';
-    await fetch(bug_report_uri, { 
+    await fetch(bug_report_uri, {
         method: 'POST',
         body: JSON.stringify({
             type: 'client',
@@ -177,22 +179,23 @@ process.on('uncaughtException',async (err) => {
     process.exit(1);
 });
 
-process.on('unhandledRejection', async (reason,promise) => {
+process.on('unhandledRejection', async (reason, promise) => {
     //something error
     (new logger('setup')).error(reason);
     const bug_report_uri = 'https://log-concatenate.deta.dev';
-    await fetch(bug_report_uri, {
-        method: 'POST',
-        body: JSON.stringify({
-            type: 'client',
-            level: 'error',
-            data: reason,
-            env: 'client setup',
-            version: process.version,
-            platform: process.platform.toLowerCase(),
-            arch: process.arch.toLowerCase()
-        })
-    });
+    if (reason != 'Please check your Internet connection.') //when internet connection error, cannot submit log
+        await fetch(bug_report_uri, {
+            method: 'POST',
+            body: JSON.stringify({
+                type: 'client',
+                level: 'error',
+                data: reason,
+                env: 'client setup',
+                version: process.version,
+                platform: process.platform.toLowerCase(),
+                arch: process.arch.toLowerCase()
+            })
+        });
     dialog.showErrorBox('Error', reason.toString());
     process.exit(1);
 });
