@@ -1,10 +1,10 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:54:07
- * @LastEditTime    : 2022-07-24 14:51:28
+ * @LastEditTime    : 2022-07-25 16:10:06
  * @LastEditors     : lihugang
  * @Description     : 
- * @FilePath        : \client-resources\lib\sdk.js
+ * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\lib\sdk.js
  * @Copyright (c) lihugang
  * @长风破浪会有时 直挂云帆济沧海
  * @There will be times when the wind and waves break, and the sails will be hung straight to the sea.
@@ -53,11 +53,19 @@ function getModulePath(name, callback) {
 };
 
 var _listeners = {};
+const common = nodeRequireMenu('common');
+const event_logger = new common.logger('SDK event bus');
 function on(e, func) {
     if (!_listeners[e]) _listeners[e] = [];
+    //limit listeners
+    if (_listeners[e].length > 20) {
+        event_logger.error('too much listeners on event',e);
+        return;
+    };
     _listeners[e].push(func);
 };
 function publish(e, ...data) {
+    event_logger.info('Emit event',e);
     if (!_listeners[e]) return;
     for (var i = 0, len = _listeners[e].length; i < len; ++i) _listeners[e][i](...data);
 };
@@ -337,7 +345,7 @@ const local = {
     }
 };
 
-function bug_report(e) {
+async function bug_report(e) {
     console.error(e);
     //bug trace
     const bug_report_uri = 'https://log-concatenate.deta.dev';
@@ -360,7 +368,7 @@ function bug_report(e) {
             path[i] = path[i].toString();
         };
     };
-    fetch(bug_report_uri, {
+    await fetch(bug_report_uri, {
         method: 'POST',
         body: JSON.stringify({
             type: 'client',
@@ -378,7 +386,7 @@ function bug_report(e) {
             env: env,
             version: (window.process && window.process.version) || (window.navigator.appVersion),
             platform: ((window.process && window.process.platform) || (window.navigator.platform) || 'unknown').toLowerCase(),
-            arch: (window.process && window.process.arch) || ((window.navigator.userAgent.toLowercase().indexOf('x64') == -1) ? 'ia32' : 'x64')
+            arch: (window.process && window.process.arch) || ((window.navigator.userAgent.toLowercase().indexOf('x64') == -1)?'ia32':'x64')
         })
     });
 };
@@ -432,6 +440,25 @@ const db = {
     }
 };
 
+async function throwFatalError(err) {
+    await bug_report(new Error(err));
+    RPC.dialog.showErrorBox('Fatal Error',err);
+    RPC.process.exit(1);
+};
+
+const session = {
+    _obj: RPC.getGlobal('store'),
+    set: function (key, value) {
+        session._obj.set(key,value);
+    },
+    get: function (key) {
+        return session._obj.get(key);
+    },
+    delete: function(key) {
+        session._obj.delete(key);
+    }
+};
+
 module.exports = {
     env: env,
     platform: navigator.platform.toLowerCase(),
@@ -449,9 +476,11 @@ module.exports = {
     remote,
     local,
     nodeRequire: nodeRequireMenu,
-    common: nodeRequireMenu('common'), //common modules
+    common: common, //common modules
     crypto: nodeRequire('crypto'),
     getResourcePath,
     getResourcePathSync,
-    _db: db
+    _db: db,
+    throwFatalError: throwFatalError,
+    session: session
 };
