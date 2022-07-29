@@ -1,10 +1,10 @@
 <!--
  * @Author          : chenglan28
  * @Date            : 2022-07-22 18:54:09
- * @LastEditTime    : 2022-07-23 19:52:17
+ * @LastEditTime    : 2022-07-29 10:44:01
  * @LastEditors     : lihugang
  * @Description     : 
- * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\ui\register.html
+ * @FilePath        : \client-resources\ui\register.html
  * Copyright (c) lihugang
  * 长风破浪会有时 直挂云帆济沧海
  * There will be times when the wind and waves break, and the sails will be hung straight to the sea.
@@ -29,7 +29,7 @@
     </script>
     <script src="../lib/require.js"></script>
     <script src="../lib/vue.js"></script>
-    <script src="https://pv.sohu.com/cityjson"></script>
+    <!--<script src="https://pv.sohu.com/cityjson"></script> old ip api-->
     <script>
         const sdk = fRequire('../lib/sdk.js');
         const translation = fRequire('../lib/translation.js');
@@ -43,6 +43,13 @@
 
         sdk.on('translation-finish-loading', function () {
             document.title = translation.translate('@{app.name}');
+        });
+
+        sdk.getClientIp(function (ip) {
+            window.returnCitySN = {
+                cip: ip.ip,
+                location: ip.loc
+            };
         });
     </script>
     <style>

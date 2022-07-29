@@ -1,10 +1,10 @@
 <!--
  * @Author          : chenglan28
  * @Date            : 2022-07-22 18:54:09
- * @LastEditTime    : 2022-07-25 15:48:18
+ * @LastEditTime    : 2022-07-29 10:43:47
  * @LastEditors     : lihugang
  * @Description     : 
- * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\ui\login.html
+ * @FilePath        : \client-resources\ui\login.html
  * Copyright (c) lihugang
  * 长风破浪会有时 直挂云帆济沧海
  * There will be times when the wind and waves break, and the sails will be hung straight to the sea.
@@ -29,7 +29,7 @@
     </script>
     <script src="../lib/require.js"></script>
     <script src="../lib/vue.js"></script>
-    <script src="https://pv.sohu.com/cityjson"></script>
+    <!--<script src="https://pv.sohu.com/cityjson"></script> old ip api-->
     <script>
         const sdk = fRequire('../lib/sdk.js');
         const translation = fRequire('../lib/translation.js');
@@ -43,6 +43,13 @@
 
         sdk.on('translation-finish-loading', function () {
             document.title = translation.translate('@{app.name}');
+        });
+
+        sdk.getClientIp(function (ip) {
+            window.returnCitySN = {
+                cip: ip.ip,
+                location: ip.loc
+            };
         });
     </script>
     <style>
@@ -238,9 +245,9 @@
             document.querySelector('.login-captcha-container').style.display = 'none';
         };
 
-        onload = function() {
+        onload = function () {
             document.querySelector('#login-username').value = sessionStorage.username || '';
-            document.querySelector('#login-password').value = sessionStorage.password || ''; 
+            document.querySelector('#login-password').value = sessionStorage.password || '';
             if (sessionStorage.username && sessionStorage.password) document.querySelector('#remember').checked = true;
         };
 
@@ -263,7 +270,7 @@
     <img src="icon.png" id="login-icon" />
     <span id="login-title">@{app.name} @{dict.login} @{dict.system}</span>
     <div id="login-info-container">
-        <input type="text" id="login-username" placeholder="@{dict.username}" maxlength=24/>
+        <input type="text" id="login-username" placeholder="@{dict.username}" maxlength=24 />
         <input type="password" id="login-password" placeholder="@{dict.password}" maxlength=16 />
     </div>
     <div class="login-captcha-container" id="recaptcha" style="display:none">
