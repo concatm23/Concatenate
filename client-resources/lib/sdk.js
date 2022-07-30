@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:54:07
- * @LastEditTime    : 2022-07-25 16:10:06
+ * @LastEditTime    : 2022-07-29 10:42:05
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\lib\sdk.js
@@ -59,13 +59,13 @@ function on(e, func) {
     if (!_listeners[e]) _listeners[e] = [];
     //limit listeners
     if (_listeners[e].length > 20) {
-        event_logger.error('too much listeners on event',e);
+        event_logger.error('too much listeners on event', e);
         return;
     };
     _listeners[e].push(func);
 };
 function publish(e, ...data) {
-    event_logger.info('Emit event',e);
+    event_logger.info('Emit event', e);
     if (!_listeners[e]) return;
     for (var i = 0, len = _listeners[e].length; i < len; ++i) _listeners[e][i](...data);
 };
@@ -386,7 +386,7 @@ async function bug_report(e) {
             env: env,
             version: (window.process && window.process.version) || (window.navigator.appVersion),
             platform: ((window.process && window.process.platform) || (window.navigator.platform) || 'unknown').toLowerCase(),
-            arch: (window.process && window.process.arch) || ((window.navigator.userAgent.toLowercase().indexOf('x64') == -1)?'ia32':'x64')
+            arch: (window.process && window.process.arch) || ((window.navigator.userAgent.toLowercase().indexOf('x64') == -1) ? 'ia32' : 'x64')
         })
     });
 };
@@ -442,21 +442,52 @@ const db = {
 
 async function throwFatalError(err) {
     await bug_report(new Error(err));
-    RPC.dialog.showErrorBox('Fatal Error',err);
+    RPC.dialog.showErrorBox('Fatal Error', err);
     RPC.process.exit(1);
 };
 
 const session = {
     _obj: RPC.getGlobal('store'),
     set: function (key, value) {
-        session._obj.set(key,value);
+        session._obj.set(key, value);
     },
     get: function (key) {
         return session._obj.get(key);
     },
-    delete: function(key) {
+    delete: function (key) {
         session._obj.delete(key);
     }
+};
+
+async function getClientIp(callback) {
+    return new Promise(async function (resolve, reject) {
+        var response = await fetch('https://www.cloudflare.com/cdn-cgi/trace');
+        var data = await response.text();
+        /*
+        Format:
+        fl=464f38
+        h=www.cloudflare.com
+        ip=240e:388:6414:e100:****:****:****:***
+        ts=1659062282.258
+        visit_scheme=https
+        uag=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36
+        colo=SJC
+        http=http/3
+        loc=CN
+        tls=TLSv1.3
+        sni=plaintext
+        warp=off
+        gateway=off
+         */
+        data = data.split('\n'); //split by '\n'
+        var obj = {};
+        for (var i = 0, len = data.length; i < len; ++i) {
+            data[i] = data[i].split('='); //split by ' '
+            obj[data[i][0]] = data[i][1]; //such as {http='http/3', h='www.cloudflare.com' ...}
+        };
+        if (callback) callback(obj);
+        resolve(obj);
+    });
 };
 
 module.exports = {
@@ -482,5 +513,6 @@ module.exports = {
     getResourcePathSync,
     _db: db,
     throwFatalError: throwFatalError,
-    session: session
+    session: session,
+    getClientIp
 };
