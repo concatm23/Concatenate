@@ -8,5 +8,6 @@ CREATE TABLE list(
     is_on_top INTEGER DEFAULT 0,
     is_show INTEGER DEFAULT 1,
     group_type INTEGER DEFAULT 0,
-    user_uid INTEGER NOT NULL
+    user_uid INTEGER NOT NULL,
+    msg_counts INTEGER DEFAULT 0
 )

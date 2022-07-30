@@ -1,2 +1,2 @@
-INSERT INTO cache (cache_key, cache_value)
-VALUES (@key,@value)
+INSERT INTO cache (cache_key, cache_value, expires_at)
+VALUES (@key, @value, @expires_at)

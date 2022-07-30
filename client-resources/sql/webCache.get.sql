@@ -1,1 +1,1 @@
-SELECT cache_value FROM cache WHERE cache_key = @key
+SELECT cache_value, expires_at FROM cache WHERE cache_key = @key
