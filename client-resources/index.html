@@ -1,10 +1,10 @@
 <!--
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:53:01
- * @LastEditTime    : 2022-07-24 16:56:58
+ * @LastEditTime    : 2022-07-30 19:33:48
  * @LastEditors     : lihugang
  * @Description     : 
- * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\index.html
+ * @FilePath        : \client-resources\index.html
  * Copyright (c) lihugang
  * 长风破浪会有时 直挂云帆济沧海
  * There will be times when the wind and waves break, and the sails will be hung straight to the sea.
@@ -28,9 +28,11 @@
     <script src="lib/require.js"></script>
     <script src="lib/vue.js"></script>
     <script>
-        var node_modules_position = decodeURI(location.search.substring(1)); //get the position of the module
+        const url_parse = new URLSearchParams(decodeURIComponent(location.search.substring(1)));
+
+        var node_modules_position = url_parse.get('node_modules') //get the position of the module
         node_modules_position = node_modules_position.replaceAll('\\', '/'); //convert '\' to '/'
-        if (node_modules_position != '')
+        if (node_modules_position)
             localStorage.setItem('node_modules_position', node_modules_position); //store it
 
         const sdk = fRequire('lib/sdk.js');
@@ -57,20 +59,33 @@
                     sessionStorage.setItem('password', data.password);
                     //store in session storage
                 };
-                location.href = 'ui/login.html';
+                //location.href = 'ui/login.html';
+                document.querySelector('iframe').src = 'ui/login.html';
+                //using iframe instead of location.href
+                //Can keep ws connection when user clicked the other pages such as files or settings
             } else {
                 //load group page
-                location.href = 'ui/groups.html';
+                //location.href = 'ui/groups.html';
+                if (url_parse.get('load')) {
+                    //set visit url
+                    //load it
+                    document.querySelector('iframe').src = 'ui/' + url_parse.get('load');
+                } else {
+                    document.querySelector('iframe').src = 'ui/groups.html';
+                };
+
             };
         }).catch(function (err) {
             //not login
             console.log(err);
-            location.href = 'ui/login.html';
+            //location.href = 'ui/login.html';
+            document.querySelector('iframe').src = 'ui/login.html';
 
-        }) 
+        });
     </script>
 </head>
 
 <body>
-
+    <iframe border="0" height="100%" width="100%" noscroll="true"
+        style="position:fixed;top:0px;left:0px;height:100%;width:100%;"></iframe>
 </body>
