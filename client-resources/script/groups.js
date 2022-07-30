@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-23 20:14:51
- * @LastEditTime    : 2022-07-23 22:33:05
+ * @LastEditTime    : 2022-07-30 17:47:01
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\groups.js
@@ -15,13 +15,43 @@
 module.exports = function () {
     sdk.on('translation-finish-loading', async function () {
         const renders = fRequire('../script/groups.render.js');
+        const fetch_data = fRequire('../script/groups.fetch.js');
+        const operations = fRequire('../script/groups.operation.js');
+
+        window.dataurl2blob = fRequire('../lib/dataurl2blob.js');
+
+        const logger = new sdk.common.logger('Groups Script');
+        logger.filter(sdk.common.logger.DEBUG);
+
+        logger.info('Rendering title');
         renders.renderTitle();
 
+        logger.info('Rendering switch button');
         renders.renderSwitchButton();
 
-        const groupList = await sdk.local.do('group.getlist', {
-            uid: JSON.parse(await sdk.fs.read('usr')).uid
-        });
-    });
+        logger.info('Getting groups information');
+        var lists = await Promise.all([
+            fetch_data.local(),
+            fetch_data.remote()
+        ]); //fetch group list data from local and remote server
+        logger.debug('groups lists',lists);
+        
+        logger.info('Unique lists');
+        lists = operations.unique(lists[0], lists[1]);
+        logger.debug('Unique result',lists);
 
+        logger.info('Sort lists');
+        lists = operations.sort(lists);
+        logger.debug('Sort result',lists);
+
+        logger.info('Rendering list');
+        window.render_list = renders.renderList(lists);
+
+        sdk.on('user-enter-group', function(id) {
+            logger.info('User enter group',id);
+        });
+
+        operations.loadAlias();
+        operations.loadAvatar();
+    });
 };

@@ -12,8 +12,48 @@
     position: fixed;
     bottom: 0px;
     background-color: white;
+    z-index: 2;
+    height: 48px;
+    width: 100%;
+}
+
+.switch-button-background {
+    z-index: 1;
+    width: 100%;
+    height: 48px;
+    position: absolute;
+    bottom: 0px;
+    display: block;
 }
 
 .switch-button-icon {
     position: absolute;
+}
+
+.group-list-template {
+    height: 38px;
+    border: 1px solid white;
+    z-index: 1;
+}
+
+.group-list-id {
+    display: none;
+}
+
+.group-list-last-msg-time {
+    font-size: 0.8em; 
+    color: gray;
+    float: right;
+    position: relative;
+}
+
+.group-list-new-message-counts {
+    font-size: 0.8em; 
+    float: right;
+    position: relative;
+    top: 16px;
+}
+
+.group-list-new-message-counts-has-message {
+    color: red
 }

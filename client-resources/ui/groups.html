@@ -1,7 +1,7 @@
 <!--
  * @Author          : lihugang
  * @Date            : 2022-07-23 20:05:46
- * @LastEditTime    : 2022-07-23 21:01:54
+ * @LastEditTime    : 2022-07-30 17:05:57
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\ui\groups.html
@@ -53,11 +53,35 @@
         <span class="software-title">{{app.name}}</span>
     </div>
     <div class="groups-list">
-
+        <span id="top-sentinel"></span>
+        <template class="group-list-template" v-for="(item) in visible_list">
+            <div class="group-list-template" @click="enterGroup" :id="'group' + item.id" :data_index="item.list_id"
+                :data-id="item.id">
+                <img class="group-list-icon" height="32px" width="32px" :src="item.img_src">
+                <span class="group-list-name"
+                    v-bind:style="{ 'font-size': (item.name.toString().length < 13)?'1em':((1 / (item.name.toString().length / 13)) + 'em') }"
+                    :data-length="item.name.toString().length">{{item.name}}
+                </span>
+                <span class="group-list-new-message-counts"
+                    v-bind:class="{ 'group-list-new-message-counts-has-message':!!item.new_message_counts} "
+                    v-show="!!item.new_message_counts">{{item.new_message_counts}}
+                </span>
+                <span class="group-list-last-msg-time"
+                    v-bind:style="{ left: (item.new_message_counts)?(item.new_message_counts.toString().length * 8 + 'px'):('0px') }">{{item.last_msg}}
+                </span>
+            </div>
+        </template>
+        <span id="bottom-sentinel"></span>
+        <!-- spaces for switch-button -->
+        <br><br>
     </div>
     <div class="switch-button">
-        <img class="switch-button-icon active-switch-button" id="group-list-icon" src="groups.png" height="48px" width="48px" alt="@{groups.list}">
-        <img class="switch-button-icon" id="group-file-icon" src="file.png" height="48px" width="48px" alt="@{groups.file}">
-        <img class="switch-button-icon" id="group-settings-icon" src="settings.png" height="48px" width="48px" alt="@{groups.settings}">
+        <div class="switch-button-background"></div>
+        <img class="switch-button-icon active-switch-button" id="group-list-icon" src="groups.png" height="48px"
+            width="48px" alt="@{groups.list}">
+        <img class="switch-button-icon" id="group-file-icon" src="file.png" height="48px" width="48px"
+            alt="@{groups.file}">
+        <img class="switch-button-icon" id="group-settings-icon" src="settings.png" height="48px" width="48px"
+            alt="@{groups.settings}">
     </div>
 </body>
