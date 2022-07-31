@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:54:07
- * @LastEditTime    : 2022-07-31 11:56:43
+ * @LastEditTime    : 2022-07-31 14:44:38
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\lib\sdk.js
@@ -32,6 +32,12 @@ function getConfig(category, callback) {
         if (callback) callback(data);
         resolve(data);
     });
+};
+function setConfig(config) {
+    RPC.getGlobal('config_ptr').config = config;
+    const js_yaml = nodeRequireMenu('js-yaml');
+    const content = js_yaml.dump(config);
+    sdk.fs.write('config.yaml','utf-8',content);
 };
 function getResourcePath(callback) {
     return new Promise(function (resolve, reject) {
@@ -68,7 +74,7 @@ function on(e, func) {
 function publish(e, ...data) {
     event_logger.info('Emit event', e);
     if (!_listeners[e]) return;
-    for (var i = 0, len = _listeners[e].length; i < len; ++i) _listeners[e][i](...data);
+    for (var i = 0, len = _listeners[e].length; i < len; ++i) if (_listeners[e][i] instanceof Function) _listeners[e][i](...data); else event_logger.warn('Bad listener',_listeners[e][i]);
 };
 function off(e, func) {
     if (!_listeners[e]) return;
@@ -561,6 +567,7 @@ module.exports = {
     platform: navigator.platform.toLowerCase(),
     fs: fs,
     getConfig: getConfig,
+    setConfig: setConfig,
     getModulePath,
     on: on,
     off: off,

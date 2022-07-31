@@ -30,30 +30,13 @@
     position: absolute;
 }
 
-.group-list-template {
-    height: 38px;
-    border: 1px solid white;
+.settings-template {
+    height: 24px;
+    border-bottom: 1px solid gray;
+    border-radius: 6px;
     z-index: 1;
 }
 
-.group-list-id {
-    display: none;
-}
-
-.group-list-last-msg-time {
-    font-size: 0.8em; 
-    color: gray;
+.settings-model {
     float: right;
-    position: relative;
-}
-
-.group-list-new-message-counts {
-    font-size: 0.8em; 
-    float: right;
-    position: relative;
-    top: 16px;
-}
-
-.group-list-new-message-counts-has-message {
-    color: red
 }
