@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-23 20:14:51
- * @LastEditTime    : 2022-07-31 12:40:15
+ * @LastEditTime    : 2022-07-31 15:22:30
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\groups.js
@@ -49,6 +49,8 @@ module.exports = function () {
 
         sdk.on('user-enter-group', function(id) {
             logger.info('User enter group',id);
+            document.querySelector('iframe').style.display = '';
+            document.querySelector('iframe').src = 'chat.html?' + id;
         });
 
         operations.loadAlias();

@@ -1,0 +1,39 @@
+
+<!DOCTYPE html>
+
+<head>
+    <title>Concatenate</title>
+    <link rel="stylesheet" type="text/css" src="../css/page/chat.css">
+    <script>
+        if (window.require && window.module) {
+            window.nodeRequire = window.require;
+            window.nodeModule = window.module;
+        };
+        delete window.require;
+        delete window.module;
+    </script>
+    <script src="../lib/require.js"></script>
+    <script src="../lib/vue.js"></script>
+    <script src="../lib/vconsole.js"></script>
+    <script src="../lib/localforage.js"></script>
+        <script>
+            const sdk = fRequire('../lib/sdk.js');
+            const translation = fRequire('../lib/translation.js');
+
+            sdk.getConfig('user_config', function (config) {
+                translation.config({
+                    lang: config.lang, //language
+                }, '../');
+            });
+
+            sdk.on('translation-finish-loading', function () {
+                document.title = translation.translate('@{app.name}');
+            });
+
+            const script = fRequire('../script/chat.js');
+            script();
+        </script>
+</head>
+<body>
+    
+</body>
