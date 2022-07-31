@@ -1,10 +1,10 @@
 <!--
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:53:01
- * @LastEditTime    : 2022-07-30 19:33:48
+ * @LastEditTime    : 2022-07-30 22:23:54
  * @LastEditors     : lihugang
  * @Description     : 
- * @FilePath        : \client-resources\index.html
+ * @FilePath        : e:\Concatenate\server-build\website\static\index.html
  * Copyright (c) lihugang
  * 长风破浪会有时 直挂云帆济沧海
  * There will be times when the wind and waves break, and the sails will be hung straight to the sea.
@@ -19,21 +19,29 @@
     <title>Concatenate</title>
     <link rel="stylesheet" href="css/fonts.css">
     <script>
-        window.nodeRequire = require;
-        window.nodeModule = module;
-        delete require;
-        delete module;
-        const ipcRenderer = nodeRequire('electron').ipcRenderer;
+        if (window.require && window.module) {
+            window.nodeRequire = window.require;
+            window.nodeModule = window.module;
+        };
+        delete window.require;
+        delete window.module;
     </script>
     <script src="lib/require.js"></script>
     <script src="lib/vue.js"></script>
+    <script src="lib/vconsole.js"></script>
+    <script src="lib/localforage.js"></script>
     <script>
         const url_parse = new URLSearchParams(decodeURIComponent(location.search.substring(1)));
 
-        var node_modules_position = url_parse.get('node_modules') //get the position of the module
+        var node_modules_position = url_parse.get('node_modules') || ''; //get the position of the module
         node_modules_position = node_modules_position.replaceAll('\\', '/'); //convert '\' to '/'
         if (node_modules_position)
             localStorage.setItem('node_modules_position', node_modules_position); //store it
+
+        var debug_mode = url_parse.get('debug');
+        debug_mode = !!debug_mode;
+        if (debug_mode) sessionStorage.setItem('debug', true);
+        else sessionStorage.removeItem('debug');
 
         const sdk = fRequire('lib/sdk.js');
         const translation = fRequire('lib/translation.js');
@@ -87,5 +95,5 @@
 
 <body>
     <iframe border="0" height="100%" width="100%" noscroll="true"
-        style="position:fixed;top:0px;left:0px;height:100%;width:100%;"></iframe>
+        style="position:fixed;top:0px;left:0px;height:100%;width:100%;border:0px"></iframe>
 </body>

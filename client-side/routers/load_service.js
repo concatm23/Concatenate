@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:25:26
- * @LastEditTime    : 2022-07-30 19:32:22
+ * @LastEditTime    : 2022-07-30 20:28:42
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\routers\load_service.js
@@ -14,14 +14,14 @@
  */
 const path = require('path');
 module.exports = async function (void_args, map) {
-    const { Logger, mainWindow_ptr, __update_resource_path } = map;
+    const { Logger, mainWindow_ptr, __update_resource_path, __debugFlag } = map;
     const logger = new Logger('service');
     logger.info('Service started.');
 
     //load index page
     mainWindow_ptr.mainWindow.loadURL(path.join(
         __update_resource_path,
-        `index.html?node_modules=${path.join(__dirname,'..', 'node_modules')}/` //set modules path ('..' because of subdirectory) 
+        `index.html?node_modules=${path.join(__dirname,'..', 'node_modules')}/&debug=${__debugFlag}` //set modules path ('..' because of subdirectory) 
     ));
     //resources/index.html
     logger.info('Load URL: ', path.join(__update_resource_path, 'index.html'));

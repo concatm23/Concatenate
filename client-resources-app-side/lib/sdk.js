@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:54:07
- * @LastEditTime    : 2022-07-29 10:42:05
+ * @LastEditTime    : 2022-07-30 22:17:21
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\lib\sdk.js
@@ -386,7 +386,7 @@ async function bug_report(e) {
             env: env,
             version: (window.process && window.process.version) || (window.navigator.appVersion),
             platform: ((window.process && window.process.platform) || (window.navigator.platform) || 'unknown').toLowerCase(),
-            arch: (window.process && window.process.arch) || ((window.navigator.userAgent.toLowercase().indexOf('x64') == -1) ? 'ia32' : 'x64')
+            arch: (window.process && window.process.arch) || ((window.navigator.userAgent.toLowerCase().indexOf('x64') == -1) ? 'ia32' : 'x64')
         })
     });
 };
