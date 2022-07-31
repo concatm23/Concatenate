@@ -2,7 +2,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-24 16:19:31
- * @LastEditTime    : 2022-07-31 12:23:49
+ * @LastEditTime    : 2022-07-31 20:03:00
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\groups.operation.js
@@ -137,7 +137,7 @@ module.exports = {
 
                 //cache to sessionStorage
                 sessionStorage.setItem('group-alias-' + id, result.alias);
-                
+
                 return;
             } else logger.debug(id, 'not find in local list db');
 
@@ -167,7 +167,7 @@ module.exports = {
 
                 //cache to sessionStorage
                 sessionStorage.setItem('group-alias-' + id, result.name);
-                
+
                 return;
             } else logger.debug(id, 'not find in local web cache');
 
@@ -237,9 +237,9 @@ module.exports = {
             });
             result = await result.text();
             if (result !== '') {
-                const blob =  dataurl2blob(result); //create blob from the base64 encoding
+                const blob = dataurl2blob(result); //create blob from the base64 encoding
                 const url = URL.createObjectURL(blob);
-                
+
                 logger.info('load url', id, url);
 
                 const index = ~~(document.querySelector(`#group${id}`).getAttribute('data_index'));
@@ -259,7 +259,7 @@ module.exports = {
             if (result === '') {
                 //fetch group info cache error
                 //waiting for load alias task to set cache
-                requestIdleCallback(loadAvatarTask.bind(this,id));
+                requestIdleCallback(loadAvatarTask.bind(this, id));
                 return;
             };
             result = JSON.parse(result);
@@ -275,12 +275,12 @@ module.exports = {
             };
             result = await result.blob();
             //get blob
-            
+
             //convert blob to dataurl
             const reader = new FileReader();
             reader.readAsDataURL(result);
-            
-            reader.onload = async function() {
+
+            reader.onload = async function () {
                 await sdk.local.do('webcache.set', {
                     //cache result
                     key: 'avatar-cache-group-' + id,
@@ -294,5 +294,12 @@ module.exports = {
 
 
         };
+    }, 
+    syncMessage: function (list) {
+        const func = fRequire('../script/groups.syncMessage.js');
+        var map = new Map(list);
+        map.forEach((val,key) => {
+            requestIdleCallback(func.bind(this,key));
+        });
     }
 };

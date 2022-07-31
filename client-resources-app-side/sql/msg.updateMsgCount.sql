@@ -1,0 +1,1 @@
+update list SET msg_counts = @msg_counts WHERE user_uid = @user_uid AND group_id = @group_id

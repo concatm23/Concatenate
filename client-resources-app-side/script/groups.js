@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-23 20:14:51
- * @LastEditTime    : 2022-07-31 15:22:30
+ * @LastEditTime    : 2022-07-31 20:01:19
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\groups.js
@@ -55,6 +55,7 @@ module.exports = function () {
 
         operations.loadAlias();
         operations.loadAvatar();
+        operations.syncMessage(lists);
 
         const notification = fRequire('../script/notification.js');
         notification.requestPermission();
