@@ -1,7 +1,7 @@
 <!--
  * @Author          : chenglan28
  * @Date            : 2022-07-22 18:54:09
- * @LastEditTime    : 2022-07-29 10:35:52
+ * @LastEditTime    : 2022-07-31 11:11:35
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\ui\register.html
@@ -24,11 +24,13 @@
             window.nodeRequire = window.require;
             window.nodeModule = window.module;
         };
-        delete require;
-        delete module;
+        delete window.require;
+        delete window.module;
     </script>
     <script src="../lib/require.js"></script>
     <script src="../lib/vue.js"></script>
+    <script src="../lib/vconsole.js"></script>
+    <script src="../lib/localforage.js"></script>
     <!--<script src="https://pv.sohu.com/cityjson"></script> old ip api-->
     <script>
         const sdk = fRequire('../lib/sdk.js');
@@ -208,7 +210,7 @@
                     //register successfully
                     //save data
                     data.data = JSON.parse(data.data);
-                    sdk.fs.writeSync('usr', 'binary', JSON.stringify({
+                    await sdk.fs.write('usr', 'binary', JSON.stringify({
                         username: username,
                         password: password,
                         uid: data.data.uid,

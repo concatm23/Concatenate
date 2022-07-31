@@ -1,7 +1,7 @@
 <!--
  * @Author          : chenglan28
  * @Date            : 2022-07-22 18:54:09
- * @LastEditTime    : 2022-07-29 10:34:50
+ * @LastEditTime    : 2022-07-31 11:11:23
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\ui\login.html
@@ -24,11 +24,13 @@
             window.nodeRequire = window.require;
             window.nodeModule = window.module;
         };
-        delete require;
-        delete module;
+        delete window.require;
+        delete window.module;
     </script>
     <script src="../lib/require.js"></script>
     <script src="../lib/vue.js"></script>
+    <script src="../lib/vconsole.js"></script>
+    <script src="../lib/localforage.js"></script>
     <!--<script src="https://pv.sohu.com/cityjson"></script> old ip api-->
     <script>
         const sdk = fRequire('../lib/sdk.js');
@@ -208,7 +210,7 @@
                     //register successfully
                     //save data
                     data.data = JSON.parse(data.data);
-                    sdk.fs.writeSync('usr', 'binary', JSON.stringify({
+                    await sdk.fs.write('usr', 'binary', JSON.stringify({
                         username: username,
                         password: password,
                         uid: data.data.uid,
@@ -245,9 +247,9 @@
             document.querySelector('.login-captcha-container').style.display = 'none';
         };
 
-        onload = function() {
+        onload = function () {
             document.querySelector('#login-username').value = sessionStorage.username || '';
-            document.querySelector('#login-password').value = sessionStorage.password || ''; 
+            document.querySelector('#login-password').value = sessionStorage.password || '';
             if (sessionStorage.username && sessionStorage.password) document.querySelector('#remember').checked = true;
         };
 
@@ -270,7 +272,7 @@
     <img src="icon.png" id="login-icon" />
     <span id="login-title">@{app.name} @{dict.login} @{dict.system}</span>
     <div id="login-info-container">
-        <input type="text" id="login-username" placeholder="@{dict.username}" maxlength=24/>
+        <input type="text" id="login-username" placeholder="@{dict.username}" maxlength=24 />
         <input type="password" id="login-password" placeholder="@{dict.password}" maxlength=16 />
     </div>
     <div class="login-captcha-container" id="recaptcha" style="display:none">

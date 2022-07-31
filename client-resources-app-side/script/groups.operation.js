@@ -2,7 +2,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-24 16:19:31
- * @LastEditTime    : 2022-07-30 17:47:59
+ * @LastEditTime    : 2022-07-31 11:09:40
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\groups.operation.js
@@ -41,11 +41,11 @@ function ergodic_elements_request_idle(func, timeout = 5000) {
 };
 
 module.exports = {
-    unique: function (local_list, remote_list) {
+    unique: async function (local_list, remote_list) {
         //unique local_list and remote_list
         var map = new Map(); //using map to unique
 
-        const usrData = sdk.fs.readSync('usr');
+        const usrData = await sdk.fs.read('usr');
         const uid = JSON.parse(usrData).uid;
         //user uid
 
@@ -103,14 +103,14 @@ module.exports = {
 
         return list;
     },
-    loadAlias: function loadAlias() {
+    loadAlias: async function loadAlias() {
         const logger = new sdk.common.logger('Group operation load alias task');
 
         //logger.filter(sdk.common.logger.ALL); //for debug
 
         logger.debug('call function');
 
-        sessionStorage.uid = JSON.parse(sdk.fs.readSync('usr')).uid; //keep in memory without reading memory too often
+        sessionStorage.uid = JSON.parse(await (sdk.fs.read('usr'))).uid; //keep in memory without reading memory too often
 
         sdk.once('user-group-list-update', loadAlias); //listening to task once, when next executing this function, this listener will be registered again. So that there is always only a listener
 
@@ -198,7 +198,7 @@ module.exports = {
             await sdk.local.do('webcache.set', {
                 key: 'group-' + id,
                 value: JSON.stringify(result),
-                expires_at: new Date().getTime() + 1000 * 60 * 3 //expires in 3 hrs
+                expires_at: new Date().getTime() + 1000 * 60 * 60 * 3 //expires in 3 hrs
             });
 
             logger.debug(id, 'finish');
