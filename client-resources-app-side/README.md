@@ -14,6 +14,7 @@
 -->
 # Concatenate    
 ## Client Resources  
+### App side  
 
 Resources in client that will be updated.  
 - - -

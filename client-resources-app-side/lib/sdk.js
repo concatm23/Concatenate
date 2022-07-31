@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:54:07
- * @LastEditTime    : 2022-07-30 22:17:21
+ * @LastEditTime    : 2022-07-31 11:56:43
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\lib\sdk.js
@@ -14,6 +14,7 @@
  */
 //app sdk
 const env = 'app';
+const appId = 'pz6w7nkeote';
 
 const nodeRequireMenu = function (path) {
     //auto set require path
@@ -458,9 +459,13 @@ const session = {
         session._obj.delete(key);
     }
 };
-
+_ip_cache = null;
 async function getClientIp(callback) {
     return new Promise(async function (resolve, reject) {
+        if (_ip_cache) {
+            if (callback) callback(_ip_cache);
+            return resolve(_ip_cache);
+        };
         var response = await fetch('https://www.cloudflare.com/cdn-cgi/trace');
         var data = await response.text();
         /*
@@ -485,10 +490,71 @@ async function getClientIp(callback) {
             data[i] = data[i].split('='); //split by ' '
             obj[data[i][0]] = data[i][1]; //such as {http='http/3', h='www.cloudflare.com' ...}
         };
+        _ip_cache = obj;
         if (callback) callback(obj);
         resolve(obj);
     });
 };
+
+const chat_ws = {
+    _groups: new Map(),
+    connect: async function(callback) {
+        return new Promise((resolve, reject) => {
+            if (window.parent.ws) return resolve();
+            window.parent.ws = new WebSocket('wss://cloud.achex.ca/concatenate@' + appId);
+            window.parent.ws.addEventListener('open', async () => {
+                window.parent.ws.send(JSON.stringify({
+                    auth: JSON.parse(await fs.read('usr')).uid + '@concatenate',
+                    passwd: 'none'
+                }));
+                const listen_auth_once = (e) => {
+                    const data = JSON.parse(e.data);
+                    if (data.auth === 'OK') {
+                        window.parent.ws.removeEventListener('message', listen_auth_once);
+                        if (callback) callback();
+                        resolve();
+                    };
+                };
+                window.parent.ws.addEventListener('message', listen_auth_once);             
+            });
+            window.parent.ws.addEventListener('message', (e) => {
+                const data = JSON.parse(e.data);
+                if (data.toH) {
+                    //message
+                    publish('msg-' + data.toH.split('@')[0], data);
+                };
+            });
+        });
+
+    },
+    listen: async function(group_id, callback) {
+        return new Promise((resolve, reject) => {
+            if (!window.parent.ws) reject('The tunnel is not established');
+            window.parent.ws.send(JSON.stringify({
+                joinHub: group_id + '@concatenate'
+            }));
+            const listen_joinhub_once = (e) => {
+                const data = JSON.parse(e.data);
+                if (data.joinHub === 'OK') {
+                    window.parent.ws.removeEventListener('message', listen_joinhub_once);
+                    if (callback) callback();
+                    resolve();
+                };
+            };
+        });
+    },
+    send: async function(group_id, msg, callback) {
+        return new Promise((resolve, reject) => {
+            if (!window.parent.ws) reject('The tunnel is not established');
+            window.parent.ws.send(JSON.stringify({
+                toH: group_id + '@concatenate',
+                ...msg
+            }));
+            if (callback) callback();
+            resolve();
+        });
+    }};
+
 
 module.exports = {
     env: env,
@@ -514,5 +580,6 @@ module.exports = {
     _db: db,
     throwFatalError: throwFatalError,
     session: session,
-    getClientIp
+    getClientIp,
+    chatWs: chat_ws
 };

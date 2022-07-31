@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-23 20:14:51
- * @LastEditTime    : 2022-07-30 17:47:01
+ * @LastEditTime    : 2022-07-31 12:40:15
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\groups.js
@@ -37,7 +37,7 @@ module.exports = function () {
         logger.debug('groups lists',lists);
         
         logger.info('Unique lists');
-        lists = operations.unique(lists[0], lists[1]);
+        lists = await operations.unique(lists[0], lists[1]);
         logger.debug('Unique result',lists);
 
         logger.info('Sort lists');
@@ -53,5 +53,13 @@ module.exports = function () {
 
         operations.loadAlias();
         operations.loadAvatar();
+
+        const notification = fRequire('../script/notification.js');
+        notification.requestPermission();
+
+        const msg = fRequire('../script/message.js');
+        msg.set('notification', notification.notice); //bind notice function to the message callback
+
+        msg.init(lists); //create socket and listen
     });
 };

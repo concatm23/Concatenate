@@ -2,7 +2,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-24 16:19:31
- * @LastEditTime    : 2022-07-31 11:09:40
+ * @LastEditTime    : 2022-07-31 12:23:49
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\groups.operation.js
@@ -134,6 +134,10 @@ module.exports = {
                 const object = window.render_list[index];
                 object.name = result.alias;
                 //set the alias
+
+                //cache to sessionStorage
+                sessionStorage.setItem('group-alias-' + id, result.alias);
+                
                 return;
             } else logger.debug(id, 'not find in local list db');
 
@@ -160,6 +164,10 @@ module.exports = {
 
                 const object = window.render_list[index];
                 object.name = result.name; //set the alias
+
+                //cache to sessionStorage
+                sessionStorage.setItem('group-alias-' + id, result.name);
+                
                 return;
             } else logger.debug(id, 'not find in local web cache');
 
@@ -208,6 +216,9 @@ module.exports = {
 
             const object = window.render_list[index];
             object.name = result.name; //set the alias
+
+            //cache to sessionStorage
+            sessionStorage.setItem('group-alias-' + id, result.name);
             return;
         };
     },
