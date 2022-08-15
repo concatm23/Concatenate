@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:54:07
- * @LastEditTime    : 2022-07-31 14:44:38
+ * @LastEditTime    : 2022-08-15 09:09:03
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\lib\sdk.js
@@ -17,6 +17,7 @@ const env = 'app';
 const appId = 'pz6w7nkeote';
 
 const nodeRequireMenu = function (path) {
+    if (!window.nodeRequire) window.nodeRequire = window.parent.nodeRequire;
     //auto set require path
     if (path == 'common') return window.nodeRequire(`${localStorage.getItem('node_modules_position')}../common.js`); //common functions with frontend and backend
     return window.nodeRequire(`${localStorage.getItem('node_modules_position')}${path}`);
@@ -26,18 +27,25 @@ const nodeRequireMenu = function (path) {
 const RPC = nodeRequireMenu('@electron/remote'); //remote
 function getConfig(category, callback) {
     return new Promise(function (resolve, reject) {
-        var data = RPC.getGlobal('config_ptr').config;
-        if (category === '.' || category === '');
-        else data = data[category] || {};
-        if (callback) callback(data);
-        resolve(data);
+        try {
+            var data = RPC.getGlobal('config_ptr').config;
+            if (category === '.' || category === '');
+            else data = data[category] || {};
+            if (callback) callback(data);
+            resolve(data);
+        } catch (e) {
+            fs.unlink('config.yaml');
+            throwFatalError('Because of some exceptions, the configuration broke down. \nReopen the application to recover to default.');
+        };
+
     });
 };
 function setConfig(config) {
     RPC.getGlobal('config_ptr').config = config;
     const js_yaml = nodeRequireMenu('js-yaml');
     const content = js_yaml.dump(config);
-    sdk.fs.write('config.yaml','utf-8',content);
+    sdk.fs.write('config.yaml', 'utf-8', content);
+    sdk.fs.write('config.yaml', 'utf-8', content);
 };
 function getResourcePath(callback) {
     return new Promise(function (resolve, reject) {
@@ -74,7 +82,7 @@ function on(e, func) {
 function publish(e, ...data) {
     event_logger.info('Emit event', e);
     if (!_listeners[e]) return;
-    for (var i = 0, len = _listeners[e].length; i < len; ++i) if (_listeners[e][i] instanceof Function) _listeners[e][i](...data); else event_logger.warn('Bad listener',_listeners[e][i]);
+    for (var i = 0, len = _listeners[e].length; i < len; ++i) if (_listeners[e][i] instanceof Function) _listeners[e][i](...data); else event_logger.warn('Bad listener', _listeners[e][i]);
 };
 function off(e, func) {
     if (!_listeners[e]) return;
@@ -108,19 +116,6 @@ const fs = {
             });
         });
     },
-    readSync: function (fpath, options, callback) {
-        const filesystem = nodeRequire('fs');
-        const path = nodeRequire('path');
-        //local api
-        const content = filesystem.readFileSync(path.join(
-            getResourcePathSync(),
-            '../',
-            'dat',
-            fpath
-        ), options).toString();//read from concatenate.xxxx/dat
-        if (callback) callback(content);
-        return content;
-    },
     write: async function (fpath, options, data, callback) {
         return new Promise(async (resolve, reject) => {
             const filesystem = nodeRequire('fs');
@@ -138,19 +133,6 @@ const fs = {
                 resolve();
             });
         });
-    },
-    writeSync: function (fpath, options, data, callback) {
-        const filesystem = nodeRequire('fs');
-        const path = nodeRequire('path');
-        //local api
-        filesystem.writeFileSync(path.join(
-            getResourcePathSync(),
-            '../',
-            'dat',
-            fpath
-        ), data, options); //write to concatenate.xxxx/dat
-        if (callback) callback();
-        return;
     },
     exists: function (fpath, callback) {
         return new Promise(function (resolve, reject) {
@@ -194,7 +176,29 @@ const fs = {
 
         if (callback) callback(true);
         return true;
-    }
+    },
+    unlink: function (fpath, callback) {
+        return new Promise(function (resolve, reject) {
+            const filesystem = nodeRequire('fs');
+            const path = nodeRequire('path');
+            //local api
+            filesystem.unlink(path.join(
+                getResourcePathSync(),
+                '../',
+                'dat',
+                fpath,
+            ),
+                function (err) {
+                    if (err) { //failed to open
+                        if (callback) callback(false);
+                        resolve(false);
+                    } else {
+                        if (callback) callback(true);
+                        resolve(true);
+                    };
+                });
+        });
+    },
 };
 
 
@@ -353,6 +357,7 @@ const local = {
 };
 
 async function bug_report(e) {
+    return;
     console.error(e);
     //bug trace
     const bug_report_uri = 'https://log-concatenate.deta.dev';
@@ -504,7 +509,7 @@ async function getClientIp(callback) {
 
 const chat_ws = {
     _groups: new Map(),
-    connect: async function(callback) {
+    connect: async function (callback) {
         return new Promise((resolve, reject) => {
             if (window.parent.ws) return resolve();
             window.parent.ws = new WebSocket('wss://cloud.achex.ca/concatenate@' + appId);
@@ -521,7 +526,7 @@ const chat_ws = {
                         resolve();
                     };
                 };
-                window.parent.ws.addEventListener('message', listen_auth_once);             
+                window.parent.ws.addEventListener('message', listen_auth_once);
             });
             window.parent.ws.addEventListener('message', (e) => {
                 const data = JSON.parse(e.data);
@@ -533,7 +538,7 @@ const chat_ws = {
         });
 
     },
-    listen: async function(group_id, callback) {
+    listen: async function (group_id, callback) {
         return new Promise((resolve, reject) => {
             if (!window.parent.ws) reject('The tunnel is not established');
             window.parent.ws.send(JSON.stringify({
@@ -549,7 +554,7 @@ const chat_ws = {
             };
         });
     },
-    send: async function(group_id, msg, callback) {
+    send: async function (group_id, msg, callback) {
         return new Promise((resolve, reject) => {
             if (!window.parent.ws) reject('The tunnel is not established');
             window.parent.ws.send(JSON.stringify({
@@ -559,7 +564,8 @@ const chat_ws = {
             if (callback) callback();
             resolve();
         });
-    }};
+    }
+};
 
 
 module.exports = {
