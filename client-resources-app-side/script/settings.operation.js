@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-31 13:24:37
- * @LastEditTime    : 2022-08-15 09:17:40
+ * @LastEditTime    : 2022-08-17 08:54:26
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\settings.operation.js
@@ -29,5 +29,10 @@ module.exports = {
         config.user_config.lang = val;
         sdk.setConfig(config);
         location.reload();
-    }
+    },
+    clearCache: async function() {
+        const clearState = await sdk.clear_web_cache();
+        if (!clearState) alert(translation.translate('@{settings.fail_to_clear_cache}'));
+        else alert(translation.translate('@{settings.clear_cache_success}'));
+    },
 };

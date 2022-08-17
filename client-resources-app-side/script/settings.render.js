@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-23 20:15:08
- * @LastEditTime    : 2022-08-15 09:14:07
+ * @LastEditTime    : 2022-08-17 08:57:35
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\settings.render.js
@@ -64,6 +64,7 @@ module.exports = {
             val.addEventListener('click', () => {
                 const index = ~~val.getAttribute('data-index');
                 if (arr[index].bind) arr[index].bind(); //emit bind events
+                else console.error('Cannot locate ' + arr[index].content);
             });
         });
 
@@ -71,6 +72,7 @@ module.exports = {
             val.addEventListener('change', (e) => {
                 const index = ~~val.parentNode.getAttribute('data-index');
                 if (arr[index].bind) arr[index].bind(val.value);
+                else console.error('Cannot locate ' + arr[index].content);
             });
             const index = ~~val.parentNode.getAttribute('data-index');
             val.value = arr[index].value || '';

@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-31 13:28:20
- * @LastEditTime    : 2022-08-15 09:13:50
+ * @LastEditTime    : 2022-08-17 08:55:51
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\settings.options.js
@@ -36,6 +36,15 @@ const export_list = [
         value: async function() {
             return (await sdk.getConfig('user_config')).lang
         }
+    },
+    {
+        type: 'button',
+        content: '@{settings.clear_cache}',
+        inline_styles: {
+            color: 'red'
+        },
+        bind: operation.clearCache,
+        id: 'clear_cache'
     },
     {
         type: 'button',

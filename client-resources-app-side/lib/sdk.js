@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:54:07
- * @LastEditTime    : 2022-08-15 09:35:43
+ * @LastEditTime    : 2022-08-17 08:59:18
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\lib\sdk.js
@@ -190,8 +190,11 @@ const fs = {
             ),
                 function (err) {
                     if (err) { //failed to open
+                        console.error(err);
                         if (callback) callback(false);
                         resolve(false);
+
+                        //setTimeout(fs.unlink(fpath),2000); //try per 2000ms
                     } else {
                         if (callback) callback(true);
                         resolve(true);
@@ -571,6 +574,10 @@ function quit_app() {
     RPC.process.exit(0);
 };
 
+function clear_web_cache() {
+    return fs.unlink('web_cache');
+};
+
 
 module.exports = {
     env: env,
@@ -599,5 +606,5 @@ module.exports = {
     session: session,
     getClientIp,
     chatWs: chat_ws,
-    quit_app
+    quit_app, clear_web_cache
 };
