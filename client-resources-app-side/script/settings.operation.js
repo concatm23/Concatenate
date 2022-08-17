@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-31 13:24:37
- * @LastEditTime    : 2022-07-31 14:49:47
+ * @LastEditTime    : 2022-08-15 09:17:40
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\settings.operation.js
@@ -19,6 +19,9 @@ module.exports = {
         await sdk.fs.write('usr','binary', JSON.stringify(login_content));
         //refresh the page
         parent.location.reload();
+    },
+    quitAPP: async function() {
+        sdk.quit_app();
     },
     changeLanguage: async function(val) {
         if (!val) return;

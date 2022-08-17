@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-23 20:15:08
- * @LastEditTime    : 2022-07-31 15:06:52
+ * @LastEditTime    : 2022-08-15 09:14:07
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\settings.render.js
@@ -39,7 +39,6 @@ module.exports = {
     },
     renderContent: async function (arr) {
         const logger = new sdk.common.logger('render content');
-        const promise_list = [];
         for (var i = 0; i < arr.length; ++i) {
 
             arr[i].index = i;

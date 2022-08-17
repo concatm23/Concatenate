@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:54:07
- * @LastEditTime    : 2022-08-15 09:09:03
+ * @LastEditTime    : 2022-08-15 09:35:43
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\lib\sdk.js
@@ -567,6 +567,10 @@ const chat_ws = {
     }
 };
 
+function quit_app() {
+    RPC.process.exit(0);
+};
+
 
 module.exports = {
     env: env,
@@ -594,5 +598,6 @@ module.exports = {
     throwFatalError: throwFatalError,
     session: session,
     getClientIp,
-    chatWs: chat_ws
+    chatWs: chat_ws,
+    quit_app
 };

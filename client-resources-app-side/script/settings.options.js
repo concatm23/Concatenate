@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-31 13:28:20
- * @LastEditTime    : 2022-07-31 15:02:09
+ * @LastEditTime    : 2022-08-15 09:13:50
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\settings.options.js
@@ -45,6 +45,15 @@ const export_list = [
         },
         bind: operation.logout,
         id: 'logout'
+    },
+    {
+        type: 'button',
+        content: '@{settings.quitAPP}',
+        inline_styles: {
+            color: 'red'
+        },
+        bind: operation.quitAPP,
+        id: 'quit-app'
     }
 ];
 module.exports = export_list;

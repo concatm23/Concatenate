@@ -22,6 +22,7 @@
     "chat.sendMsgButton": "发送",
     "captcha.please_verify_captcha": "请验证验证码",
     "captcha.ok": "验证码通过",
+    "settings.quitAPP": "退出应用程序",
     "ip.waiting_for_ip_loading": "请等待ip加载",
     "notification.newMsg": "新消息",
     "notification.requestPermission": "您必须同意应用程序向您发送消息",
