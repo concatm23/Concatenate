@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-18 17:02:29
- * @LastEditTime    : 2022-08-18 11:27:55
+ * @LastEditTime    : 2022-08-18 14:48:56
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\common.js
@@ -323,25 +323,28 @@ logger.prototype.print_to_console = function (format_string, level, msg) {
         format_string.append(chalk[logger.level_color[level]](`[${new Date().toISOString()}] [${logger.level_name[level]}] ${this.env} -`), chalk.white(''), ' ');
     else format_string.append('[', new Date().toISOString(), '] [', logger.level_name[level], '] ', this.env, ' - ', ' ');
     for (var i = 0, len = msg.length; i < len; ++i) {
-        format_string.append(
-            (msg[i] instanceof Error) ? (
-                msg[i].message + '\n' + msg[i].stack
-            ) : (
-                (msg[i] instanceof Function) ? (
-                    msg[i].name
+        try {
+            format_string.append(
+                (msg[i] instanceof Error) ? (
+                    msg[i].message + '\n' + msg[i].stack
                 ) : (
-                    (typeof msg[i] === 'object') ? (
-                        JSON.stringify(msg[i])
+                    (msg[i] instanceof Function) ? (
+                        msg[i].name
                     ) : (
-                        (typeof msg[i] === 'undefined') ? (
-                            'undefined'
+                        (typeof msg[i] === 'object') ? (
+                            JSON.stringify(msg[i])
                         ) : (
-                            msg[i].toString()
+                            (typeof msg[i] === 'undefined') ? (
+                                'undefined'
+                            ) : (
+                                msg[i].toString()
+                            )
                         )
                     )
                 )
-            )
-            , ' ');
+                , ' ');
+        } catch (e) { console.warn(e); };
+
     };
     console.log(format_string.toString());
     return 0;
