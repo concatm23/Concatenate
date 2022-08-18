@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-18 17:02:29
- * @LastEditTime    : 2022-07-25 09:27:47
+ * @LastEditTime    : 2022-08-18 11:27:55
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\common.js
@@ -29,8 +29,17 @@ async function makeRequest(obj, env) {
     obj.request.headers = obj.request.headers || {};
     if (runInNode)
         obj.request.headers['X-PLATFORM'] = process.platform.toLowerCase();
-    if (runInNode) do {
-        var response = await fetch(obj.request.url, {
+    let usingFetch = 'node';
+    try {
+        if (window.fetch)  usingFetch = 'window';
+        else if (runInNode) usingFetch = 'node';
+        else usingFetch = 'window';
+        //detect, if window.fetch is exists, using it (electron mode)
+    } catch (e) {
+        usingFetch = 'node';
+    };
+    if (usingFetch === 'node') do {
+        var response = await fetch_in_node(obj.request.url, {
             headers: obj.request.headers || { 'x-platform': process.platform.toLowerCase() },
             method: obj.request.method || 'GET',
             body: obj.request.body ? ((obj.request.body.encode == 'JSON') ? JSON.stringify(obj.request.body.data) : obj.request.body.data.toString()) : (void 0)
@@ -91,7 +100,7 @@ async function makeRequest(obj, env) {
         return ['failure', response.response, response.status, response.headers];
     };
 };
-if (runInNode) var fetch = function (reqPath, options = {}) {
+if (runInNode) var fetch_in_node = function (reqPath, options = {}) {
     try {
         var url = new URL(reqPath);
         return new Promise(function (resolve, reject) {
@@ -361,7 +370,7 @@ const store = {
 
 module.exports = {
     makeRequest,
-    fetch,
+    fetch: fetch_in_node,
     replaceString,
     replaceObjects,
     convertResponse,
