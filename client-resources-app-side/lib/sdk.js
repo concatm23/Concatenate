@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:54:07
- * @LastEditTime    : 2022-08-17 08:59:18
+ * @LastEditTime    : 2022-08-18 10:30:06
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\lib\sdk.js
@@ -251,15 +251,15 @@ function inChina() {
 
 const _do_code_cache = new Map();
 const remote = {
-    do: async function (keyname, ...args) {
+    do: async function (key_name, ...args) {
         const CODE_CACHE_EXPIRE_TIME = 10 * 60 * 1000; //10min
-        if (_do_code_cache.has('remote.' + keyname)) {
+        if (_do_code_cache.has('remote.' + key_name)) {
             //in cache
-            var code = _do_code_cache.get('remote.' + keyname);
+            var code = _do_code_cache.get('remote.' + key_name);
             if (new Date().getTime() - code.time > CODE_CACHE_EXPIRE_TIME) {
                 //cache expired
-                _do_code_cache.delete('remote.' + keyname);
-                return remote.do(keyname, ...args);
+                _do_code_cache.delete('remote.' + key_name);
+                return remote.do(key_name, ...args);
             };
             //run
             return new Promise(async function (resolve, reject) {
@@ -291,29 +291,29 @@ const remote = {
         } else {
             const resourcePath = await getResourcePath();
             try {
-                var func = fRequire(resourcePath + 'FaaS/remote/' + keyname + '.js');
+                var func = fRequire(resourcePath + 'FaaS/remote/' + key_name + '.js');
             } catch (e) {
             };
             //include functions
 
-            _do_code_cache.set('remote.' + keyname, {
+            _do_code_cache.set('remote.' + key_name, {
                 time: new Date().getTime(),
                 func: func
             }); //set cache
-            return remote.do(keyname, ...args); //run
+            return remote.do(key_name, ...args); //run
         };
     }
 };
 const local = {
-    do: async function (keyname, ...args) {
+    do: async function (key_name, ...args) {
         const CODE_CACHE_EXPIRE_TIME = 10 * 60 * 1000; //10min
-        if (_do_code_cache.has('local.' + keyname)) {
+        if (_do_code_cache.has('local.' + key_name)) {
             //in cache
-            var code = _do_code_cache.get('local.' + keyname);
+            var code = _do_code_cache.get('local.' + key_name);
             if (new Date().getTime() - code.time > CODE_CACHE_EXPIRE_TIME) {
                 //cache expired
-                _do_code_cache.delete('local.' + keyname);
-                return local.do(keyname, ...args);
+                _do_code_cache.delete('local.' + key_name);
+                return local.do(key_name, ...args);
             };
             //run
             return new Promise(async function (resolve, reject) {
@@ -345,16 +345,16 @@ const local = {
         } else {
             const resourcePath = await getResourcePath();
             try {
-                var func = fRequire(resourcePath + 'FaaS/local/' + keyname + '.js');
+                var func = fRequire(resourcePath + 'FaaS/local/' + key_name + '.js');
             } catch (e) {
             };
             //include functions
 
-            _do_code_cache.set('local.' + keyname, {
+            _do_code_cache.set('local.' + key_name, {
                 time: new Date().getTime(),
                 func: func
             }); //set cache
-            return local.do(keyname, ...args); //run
+            return local.do(key_name, ...args); //run
         };
     }
 };
@@ -514,24 +514,25 @@ const chat_ws = {
     _groups: new Map(),
     connect: async function (callback) {
         return new Promise((resolve, reject) => {
-            if (window.parent.ws) return resolve();
-            window.parent.ws = new WebSocket('wss://cloud.achex.ca/concatenate@' + appId);
-            window.parent.ws.addEventListener('open', async () => {
-                window.parent.ws.send(JSON.stringify({
+            const wsTunnel = window.ws || window.parent.ws || window.parent.parent.ws;
+            if (wsTunnel) return resolve();
+            wsTunnel = new WebSocket('wss://cloud.achex.ca/concatenate@' + appId);
+            wsTunnel.addEventListener('open', async () => {
+                wsTunnel.send(JSON.stringify({
                     auth: JSON.parse(await fs.read('usr')).uid + '@concatenate',
                     passwd: 'none'
                 }));
                 const listen_auth_once = (e) => {
                     const data = JSON.parse(e.data);
                     if (data.auth === 'OK') {
-                        window.parent.ws.removeEventListener('message', listen_auth_once);
+                        wsTunnel.removeEventListener('message', listen_auth_once);
                         if (callback) callback();
                         resolve();
                     };
                 };
-                window.parent.ws.addEventListener('message', listen_auth_once);
+                wsTunnel.addEventListener('message', listen_auth_once);
             });
-            window.parent.ws.addEventListener('message', (e) => {
+            wsTunnel.addEventListener('message', (e) => {
                 const data = JSON.parse(e.data);
                 if (data.toH) {
                     //message
@@ -543,14 +544,15 @@ const chat_ws = {
     },
     listen: async function (group_id, callback) {
         return new Promise((resolve, reject) => {
-            if (!window.parent.ws) reject('The tunnel is not established');
-            window.parent.ws.send(JSON.stringify({
+            const wsTunnel = window.ws || window.parent.ws || window.parent.parent.ws;
+            if (!wsTunnel) reject('The tunnel is not established');
+            wsTunnel.send(JSON.stringify({
                 joinHub: group_id + '@concatenate'
             }));
-            const listen_joinhub_once = (e) => {
+            const listen_join_hub_once = (e) => {
                 const data = JSON.parse(e.data);
                 if (data.joinHub === 'OK') {
-                    window.parent.ws.removeEventListener('message', listen_joinhub_once);
+                    wsTunnel.removeEventListener('message', listen_join_hub_once);
                     if (callback) callback();
                     resolve();
                 };
@@ -559,8 +561,12 @@ const chat_ws = {
     },
     send: async function (group_id, msg, callback) {
         return new Promise((resolve, reject) => {
-            if (!window.parent.ws) reject('The tunnel is not established');
-            window.parent.ws.send(JSON.stringify({
+            const wsTunnel = window.ws || window.parent.ws || window.parent.parent.ws;
+            if (!wsTunnel) reject('The tunnel is not established');
+            wsTunnel.send(JSON.stringify({
+                joinHub: group_id + '@concatenate',
+            }));
+            wsTunnel.send(JSON.stringify({
                 toH: group_id + '@concatenate',
                 ...msg
             }));
