@@ -24,6 +24,13 @@
     "chat.syncing_chat_history": "Syncing chat history",
     "chat.sending_message": "Sending message",
     "chat.input_msg_prompt": "Input message here",
+    "chat.delete_all_msg": "Delete all messages",
+    "chat.msg_not_send": "Message not send",
+    "chat.message_min_limit": "Message is too short",
+    "chat.message_max_limit": "Message is too long",
+    "chat.no_permission_to_send_message": "You have no permission to send a message",
+    "chat.not_in_group": "You are not in group",
+    "chat.no_permission_to_send_anonymous_message": "You have no permission to send an anonymous message",
     "captcha.please_verify_captcha": "Please verify the CAPTCHA.",
     "captcha.ok": "CAPTCHA OK",
     "settings.quitAPP": "Quit application",
@@ -43,5 +50,6 @@
     "dict.back": "back",
     "dict.continue": "continue",
     "dict.logout": "Logout",
-    "dict.language": "Language"
+    "dict.language": "Language",
+    "dict.anonymous": "Anonymous"
 }

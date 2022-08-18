@@ -1,9 +1,10 @@
-
 <!DOCTYPE html>
 
 <head>
     <title>Concatenate</title>
-    <link rel="stylesheet" type="text/css" src="../css/page/chat.css">
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" type="text/css" href="../css/fonts.css">
+    <link rel="stylesheet" type="text/css" href="../css/page/chat.css">
     <script>
         if (window.require && window.module) {
             window.nodeRequire = window.require;
@@ -16,24 +17,70 @@
     <script src="../lib/vue.js"></script>
     <script src="../lib/vconsole.js"></script>
     <script src="../lib/localforage.js"></script>
-        <script>
-            const sdk = fRequire('../lib/sdk.js');
-            const translation = fRequire('../lib/translation.js');
+    <script>
+        const sdk = fRequire('../lib/sdk.js');
+        const translation = fRequire('../lib/translation.js');
 
+
+
+        document.addEventListener('DOMContentLoaded', () => {
             sdk.getConfig('user_config', function (config) {
                 translation.config({
                     lang: config.lang, //language
                 }, '../');
             });
-
             sdk.on('translation-finish-loading', function () {
                 document.title = translation.translate('@{app.name}');
-            });
+                translation.translatePage();
 
-            const script = fRequire('../script/chat.js');
-            script();
-        </script>
+                const script = fRequire('../script/chat.js');
+                script();
+            });
+        })
+    </script>
 </head>
-<body>
-    
+
+<body @keyup.alt.66="back_page">
+    <div class="title">
+        <img class="back-icon" src="back.png" height="32px" width="32px" alt="@{dict.back}" @click="back_page(0)">
+        <span class="group-title">{{data.title}}</span>
+        <span class="group-status">{{data.status}}</span>
+    </div>
+    <div class="messages" v-bind:style="{ top: 37 + 'px', height: window.innerHeight * 0.8 - 38 + 'px'}">
+        <span class="top-sentinel"></span>
+        <div class="message-container">
+            <template v-for="(item) in show_msgs" class="message-template">
+                <div class="message-template" :msg_index="item.index" :msg_cursor="item.cursor">
+                    <span class="message-model message-meta">
+                        <img src="unknown.png" :data-sender="item.uid" :data-sender-name="item.username" height="32px"
+                            width="32px" class="message-model message-avatar">
+                        <span class="message-model message-sender">{{item.username}}</span>
+                        &nbsp;
+                        <span class="message-model message-ip">{{item.location}}
+                            <!--{{item.ip}}-->
+                        </span>
+                        &nbsp;
+                        <span class="message-model message-ts">{{new Date(item.timestamp).toISOString()}}</span>
+                    </span>
+                    <span class="message-model message-content">
+                        <span class="message-model message-content-text">{{item.content}}</span>
+                        <!-- <img class="message-model message-status" :status="item.status" height="16px" width="16px"> -->
+                        <span class="message-model message-status" style="color: red; font-size: 0.8em"
+                            v-if="item.status === 1">@{chat.msg_not_send}</span>
+                    </span>
+                    <br>
+                </div>
+            </template>
+        </div>
+        <span class="end-sentinel"></span>
+    </div>
+    <div class="operations">
+        <textarea class="input-container" v-model="content" @keyup.alt.67="clear_content" :keyup.ctrl.enter="send_msg"
+            placeholder="@{chat.input_msg_prompt}"></textarea>
+        @{dict.anonymous} <input type="checkbox" :disabled="state.isBannedAnonymous"
+            v-model="state.isChattingAnonymous">
+        <!-- <button @click="delete_msg">@{chat.delete_all_msg}</button> -->
+        <button @click="send_msg" class="send_msg_button"
+            :disabled="state.isSyncingMessage || this.content.length < 5 || this.content.length > 1000">@{chat.sendMsgButton}</button>
+    </div>
 </body>

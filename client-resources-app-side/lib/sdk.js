@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:54:07
- * @LastEditTime    : 2022-08-18 10:30:06
+ * @LastEditTime    : 2022-08-18 12:11:23
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\lib\sdk.js
@@ -514,10 +514,14 @@ const chat_ws = {
     _groups: new Map(),
     connect: async function (callback) {
         return new Promise((resolve, reject) => {
-            const wsTunnel = window.ws || window.parent.ws || window.parent.parent.ws;
-            if (wsTunnel) return resolve();
-            wsTunnel = new WebSocket('wss://cloud.achex.ca/concatenate@' + appId);
+            let wsTunnel = window.ws || window.parent.ws || window.parent.parent.ws;
+            if (wsTunnel && wsTunnel.readyState === 1) return resolve();
+            window.parent.ws = new WebSocket('wss://cloud.achex.ca/concatenate@' + appId);
+            wsTunnel = window.ws || window.parent.ws || window.parent.parent.ws;
             wsTunnel.addEventListener('open', async () => {
+                setInterval(() => {
+                    wsTunnel.send(JSON.stringify({ ping: true }));
+                }, 15 * 1000); //pong server per 15s
                 wsTunnel.send(JSON.stringify({
                     auth: JSON.parse(await fs.read('usr')).uid + '@concatenate',
                     passwd: 'none'
@@ -533,12 +537,19 @@ const chat_ws = {
                 wsTunnel.addEventListener('message', listen_auth_once);
             });
             wsTunnel.addEventListener('message', (e) => {
-                const data = JSON.parse(e.data);
+                try {
+                    var data = JSON.parse(e.data);
+                } catch (e) { return; };
                 if (data.toH) {
                     //message
                     publish('msg-' + data.toH.split('@')[0], data);
                 };
             });
+            wsTunnel.addEventListener('error', (e) => {
+                console.error(e);
+                throwFatalError('Failed to establish socket tunnel.\n' + e.message);
+            });
+
         });
 
     },
@@ -561,17 +572,23 @@ const chat_ws = {
     },
     send: async function (group_id, msg, callback) {
         return new Promise((resolve, reject) => {
-            const wsTunnel = window.ws || window.parent.ws || window.parent.parent.ws;
-            if (!wsTunnel) reject('The tunnel is not established');
-            wsTunnel.send(JSON.stringify({
-                joinHub: group_id + '@concatenate',
-            }));
-            wsTunnel.send(JSON.stringify({
-                toH: group_id + '@concatenate',
-                ...msg
-            }));
+            try {
+                const wsTunnel = window.ws || window.parent.ws || window.parent.parent.ws;
+                if (!wsTunnel) reject('The tunnel is not established');
+                wsTunnel.send(JSON.stringify({
+                    joinHub: group_id + '@concatenate',
+                }));
+                wsTunnel.send(JSON.stringify({
+                    toH: group_id + '@concatenate',
+                    ...msg
+                }));
+            } catch (e) {
+                console.error(e);
+                throwFatalError('Failed to send message to socket\n' + e.message);
+            };
             if (callback) callback();
             resolve();
+
         });
     }
 };

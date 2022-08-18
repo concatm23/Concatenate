@@ -7,5 +7,5 @@ CREATE TABLE group${group_id} (
     username VARCHAR(63) NOT NULL,
     is_received INTEGER DEFAULT 0,
     timestamp INTEGER NOT NULL DEFAULT 0,
-    ip VARCHAR(31)
+    ip VARCHAR(42)
 );

@@ -3,7 +3,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-06-25 18:10:56
- * @LastEditTime    : 2022-07-31 19:28:52
+ * @LastEditTime    : 2022-08-17 10:00:19
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\FaaS\local\msg.insert.js
@@ -27,7 +27,8 @@ module.exports = function main(data) {
         status: data.status,
         cursor: data.cursor,
         timestamp: data.ts || new Date().getTime(),
-        ip: data.ip
+        ip: data.ip,
+        is_received: data.is_received || 0
     });
 
 }

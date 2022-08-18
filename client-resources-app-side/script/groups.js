@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-23 20:14:51
- * @LastEditTime    : 2022-07-31 20:01:19
+ * @LastEditTime    : 2022-08-17 09:54:36
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\groups.js
@@ -51,6 +51,13 @@ module.exports = function () {
             logger.info('User enter group',id);
             document.querySelector('iframe').style.display = '';
             document.querySelector('iframe').src = 'chat.html?' + id;
+
+            sdk.local.do('group.setMsgCount', {
+                counts: 0,
+                group_id: id,
+                uid: sessionStorage.uid
+            });
+            //reset msg count
         });
 
         operations.loadAlias();

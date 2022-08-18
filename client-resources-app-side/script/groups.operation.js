@@ -2,7 +2,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-24 16:19:31
- * @LastEditTime    : 2022-07-31 20:03:00
+ * @LastEditTime    : 2022-08-17 09:41:04
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\groups.operation.js
@@ -262,6 +262,8 @@ module.exports = {
                 requestIdleCallback(loadAvatarTask.bind(this, id));
                 return;
             };
+
+            if (result === 'error') return; //cannot sync data from the server
             result = JSON.parse(result);
 
             const url = result.avatar || '';//get avatar url

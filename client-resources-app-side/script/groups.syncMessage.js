@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-31 18:49:40
- * @LastEditTime    : 2022-07-31 20:09:42
+ * @LastEditTime    : 2022-08-18 12:13:02
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\groups.syncMessage.js
@@ -12,10 +12,10 @@
  * @是非成败转头空 青山依旧在 几度夕阳红
  * @Whether it's right or wrong, success or failure, it's all empty now, and it's all gone with the passage of time. The green hills of the year still exist, and the sun still rises and sets.
  */
-module.exports = async function(group_id) {
+module.exports = async function (group_id) {
     const logger = new sdk.common.logger('Sync Msg');
     sessionStorage.setItem('sync-msg-' + group_id, 'pending');
-    logger.info('Sync pending',group_id);
+    logger.info('Sync pending', group_id);
     var latest_msg_time = 0;
     var msgs = await sdk.local.do('msg.query', {
         uid: sessionStorage.uid,
@@ -38,7 +38,7 @@ module.exports = async function(group_id) {
             };
         };
     };
-    logger.info('latest msg time',group_id,latest_msg_time);
+    logger.info('latest msg time', group_id, latest_msg_time);
     var cursor = null;
     const { token } = JSON.parse(await sdk.fs.read('usr'));
     var message_lists = [];
@@ -53,20 +53,18 @@ module.exports = async function(group_id) {
         result = await result.json();
         result = result.data;
         cursor = result.previousCursor; //update cursor
-        var i,len;
-        for (i = 0, len = result.gather.length; i < len && parseInt(result.gather[i].cursor) > latest_msg_time; ++i) {
+        var i, len;
+        if (!result || !result.gather || !result.gather.length) break;
+        
+        //read from the last so that the message is latest
+        for (i = result.gather.length - 1; i >= 0 && parseInt(result.gather[i].cursor) > latest_msg_time; --i) {
             message_lists.push(result.gather[i]); //collect messages
             counts++;
         };
-        if (i != len) {
-            //not reach end
-            //collect all message from the latest read
-            break;
-        };
-        if (!cursor) break;
-        break;
+        if (!parseInt((result.gather[i + 1] || result.gather[i] /* prevent overflow */).cursor) > latest_msg_time) break; //syncing finished
+        if (!cursor) break; //read the last message
     };
-    message_lists = message_lists.reverse(); //the latest message is in the end, the oldest message is in the beginning
+
     for (var i = 0, len = message_lists.length; i < len; ++i) {
         message_lists[i].cType = 0;
         message_lists[i].content = message_lists[i].msg;
