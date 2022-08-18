@@ -1,7 +1,7 @@
 <!--
  * @Author          : chenglan28
  * @Date            : 2022-07-22 18:54:09
- * @LastEditTime    : 2022-07-31 11:11:23
+ * @LastEditTime    : 2022-08-18 13:48:53
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\ui\login.html
@@ -210,7 +210,8 @@
                     //register successfully
                     //save data
                     data.data = JSON.parse(data.data);
-                    await sdk.fs.write('usr', 'binary', JSON.stringify({
+                    console.log('Login data', data.data);
+                    await sdk.fs.write('usr', 'utf-8', JSON.stringify({
                         username: username,
                         password: password,
                         uid: data.data.uid,
