@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-31 22:06:36
- * @LastEditTime    : 2022-08-18 13:27:32
+ * @LastEditTime    : 2022-08-18 20:29:57
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\chat.render.js
@@ -130,6 +130,14 @@ module.exports = {
             el: '.messages',
             data: {
                 show_msgs: messages
+            },
+            methods: {
+                download_avatar(e) {
+                    const a = document.createElement('a');
+                    a.href = e.target.src;
+                    a.download = translation.translate('@{dict.avatar}');
+                    a.click();
+                },
             }
         });
         sdk.publish('chat-page-loaded');

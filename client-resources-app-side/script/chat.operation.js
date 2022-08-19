@@ -142,7 +142,7 @@ sdk.on('send-msg', async (content, anonymous = false) => {
         };
 
         resetGroupStatus();
-        if (error_code === 'You have no permission to send message.') 
+        if (error_code === 'You have no permission to send message.')
             messagePackage.tellUser('@{chat.no_permission_to_send_message}', messagePackage.MSG_ERROR);
         else if (error_code === 'You are not in the group.')
             messagePackage.tellUser('@{chat.not_in_group}', messagePackage.MSG_ERROR);
@@ -278,61 +278,74 @@ const loadAvatars = () => {
     });
 };
 
+const getAvatarLink = (user_uid) => {
+    const logger = new sdk.common.logger('Get avatar link');
+
+
+    return new Promise(async (resolve, reject) => {
+        if (avatar_blob_cache_map[user_uid]) {
+            logger.info(avatar_blob_cache_map[user_uid],'for user',user_uid);
+            resolve(avatar_blob_cache_map[user_uid]);
+            return;
+        };
+        //hit memory cache, load from it
+
+        //check from the disk cache
+        let data = await(await sdk.local.do('webcache.get', {
+            key: 'avatar-cache-user-' + user_uid
+        })).text();
+
+        if (data === 'error') //fetch image failed
+            return;
+
+        if (data === '') {
+            //cannot find in the disk
+            const response = await fetch(`https://download-concatenate.deta.dev/user-avatar/${user_uid}`);
+            if (response.ok) {
+                const blob = await response.blob();
+                const reader = new FileReader();
+                reader.readAsDataURL(blob);
+                //blob to dataurl and save to db
+                reader.onload = async () => {
+                    await sdk.local.do('webcache.set', {
+                        key: 'avatar-cache-user-' + user_uid,
+                        value: reader.result,
+                        expires_at: new Date().getTime() + 1000 * 60 * 60 * 24 * 14 //save for 14 days
+                    });
+                    resolve(await getAvatarLink(user_uid)); //recall
+                };
+            } else {
+                //failed to request
+                const default_dataurl = await(await sdk.local.do('webcache.get', {
+                    key: 'avatar-cache-group-1',
+                })).text();
+                await sdk.local.do('webcache.set', {
+                    key: 'avatar-cache-user-' + user_uid,
+                    value: default_dataurl || 'error',
+                    expires_at: new Date().getTime() + 1000 * 60 * 60 * 24 * 3 //save for 3days
+                });
+                resolve(await getAvatarLink(user_uid)); //recall
+
+            };
+        } else {
+            const blob = dataurl2blob(data);
+            const blob_url = window.URL.createObjectURL(blob);
+            //make blob_url and save to cache
+            avatar_blob_cache_map[user_uid] = blob_url;
+            resolve(await getAvatarLink(user_uid)); //recall
+        };
+    });
+};
+
 const loadAvatar = async (user_uid, show_index) => {
     const logger = new sdk.common.logger('Chat Operation/Thread');
     logger.info('Loading avatar for user ' + user_uid);
 
-    if (avatar_blob_cache_map[user_uid]) {
-        logger.info('Generating avatar blob url ', avatar_blob_cache_map[user_uid], 'for user', user_uid);
-        document.querySelectorAll('.message-avatar')[show_index].src = avatar_blob_cache_map[user_uid];
-        return;
-    };
-    //hit memory cache, load from it
+    const url = await getAvatarLink(user_uid);
 
-    //check from the disk cache
-    let data = await (await sdk.local.do('webcache.get', {
-        key: 'avatar-cache-user-' + user_uid
-    })).text();
-
-    if (data === 'error') //fetch image failed
-        return;
-
-    if (data === '') {
-        //cannot find in the disk
-        const response = await fetch(`https://download-concatenate.deta.dev/user-avatar/${user_uid}`);
-        if (response.ok) {
-            const blob = await response.blob();
-            const reader = new FileReader();
-            reader.readAsDataURL(blob);
-            //blob to dataurl and save to db
-            reader.onload = async () => {
-                await sdk.local.do('webcache.set', {
-                    key: 'avatar-cache-user-' + user_uid,
-                    value: reader.result,
-                    expires_at: new Date().getTime() + 1000 * 60 * 60 * 24 * 14 //save for 14 days
-                });
-                requestIdleCallback(loadAvatar.bind(this, user_uid, show_index)); //recall
-            };
-        } else {
-            //failed to request
-            const default_dataurl = await (await sdk.local.do('webcache.get', {
-                key: 'avatar-cache-group-1',
-            })).text();
-            await sdk.local.do('webcache.set', {
-                key: 'avatar-cache-user-' + user_uid,
-                value: default_dataurl || 'error',
-                expires_at: new Date().getTime() + 1000 * 60 * 60 * 24 * 3 //save for 3days
-            });
-            requestIdleCallback(loadAvatar.bind(this, user_uid, show_index)); //recall
-
-        };
-    } else {
-        const blob = dataurl2blob(data);
-        const blob_url = window.URL.createObjectURL(blob);
-        //make blob_url and save to cache
-        avatar_blob_cache_map[user_uid] = blob_url;
-        requestIdleCallback(loadAvatar.bind(this, user_uid, show_index)); //recall
-    };
+    if (!url) return;
+    logger.info('Generating avatar blob url ', url, 'for user', user_uid);
+    document.querySelectorAll('.message-avatar')[show_index].src = url;
 };
 
 const detectAllowAnonymous = async () => {
@@ -379,6 +392,7 @@ module.exports = {
     getMyPermission,
     loadAvatars,
     loadAvatar,
+    getAvatarLink,
     scrollToBottom,
     MSG_STATUS_ENUM
 };

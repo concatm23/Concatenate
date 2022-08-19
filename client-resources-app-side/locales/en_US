@@ -37,6 +37,8 @@
     "settings.clear_cache": "Clear cache",
     "settings.fail_to_clear_cache": "Failed to clear cache.\nResource is locked",
     "settings.clear_cache_success": "Clear cache successfully",
+    "settings.select_image":"Select image here",
+    "settings.failed_to_upload_avatar": "Failed to upload avatar.",
     "ip.waiting_for_ip_loading": "Please waiting for the ip to be loaded.",
     "notification.newMsg": "New message",
     "notification.requestPermission": "You should allow this application to send notifications",
@@ -51,5 +53,9 @@
     "dict.continue": "continue",
     "dict.logout": "Logout",
     "dict.language": "Language",
-    "dict.anonymous": "Anonymous"
+    "dict.anonymous": "Anonymous",
+    "dict.profile": "Profile",
+    "dict.confirm": "Confirm",
+    "dict.uid": "Unique ID",
+    "dict.avatar": "Avatar"
 }

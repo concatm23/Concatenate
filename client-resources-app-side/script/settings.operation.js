@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-31 13:24:37
- * @LastEditTime    : 2022-08-17 08:54:26
+ * @LastEditTime    : 2022-08-19 13:32:35
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\settings.operation.js
@@ -35,4 +35,48 @@ module.exports = {
         if (!clearState) alert(translation.translate('@{settings.fail_to_clear_cache}'));
         else alert(translation.translate('@{settings.clear_cache_success}'));
     },
+    uploadUserAvatar: async function(files, display, index, element) {
+        //display.edit = false;
+        //why vue does not work?
+        element.style.display = 'none';
+
+
+        const imageConversion = fRequire('../lib/image-conversion.js');
+        const AVATAR_MIN_LIMIT = 320; //320k
+
+        if (files[0].size > AVATAR_MIN_LIMIT * 1024) {
+            //compress file
+            var zippedFile = await imageConversion.compressAccurately(files[0], {
+                height: 500,
+                width: 500,
+                size: AVATAR_MIN_LIMIT,
+                type: 'image/png',
+                accuracy: 0.98
+            });
+        } else var zippedFile = files[0];
+
+
+        const fileReader = new FileReader();
+        fileReader.readAsDataURL(zippedFile);
+        fileReader.onload = async () => {
+            //convert blob to base64
+            const fileBase64 = fileReader.result.substring(fileReader.result.indexOf('base64,') + 7 /* the length of 'base64,' */);
+            
+            const response = await (await sdk.remote.do('fs.uploadAvatar', {
+                token: sessionStorage.user_token,
+                user_uid: sessionStorage.uid,
+                content: fileBase64
+            })).json();
+
+            if (response.status === 'success') {
+                await sdk.local.do('webcache.delete', {
+                    key: 'avatar-cache-user-' + sessionStorage.uid
+                });
+                //remove cache
+                location.reload();
+                //reload the page
+            } else alert(translation.translate('@{settings.failed_to_update_avatar}'))
+        };
+    }
 };
+

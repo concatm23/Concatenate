@@ -1,7 +1,7 @@
 <!--
  * @Author          : lihugang
  * @Date            : 2022-07-23 20:05:46
- * @LastEditTime    : 2022-08-18 13:57:44
+ * @LastEditTime    : 2022-08-18 20:46:03
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\ui\settings.html
@@ -56,11 +56,20 @@
         <span class="software-title">{{app.name}}</span>
     </div>
     <div class="settings">
-        <template class="settings-template" v-for="(item) in settings_list">
+        <div class="settings-template settings-back" v-if="data.display.back">
+            <button id="back-button">@{dict.back}</button>
+        </div>
+        <template class="settings-template" v-for="(item) in data.display.display">
             <div class="settings-template" :id="item.id" :data-index="item.index">
                 <span class="settings-content" :style="item.inline_styles">{{item.content}}</span>
-                <input class="settings-text-box settings-model" v-model="item.value" type="text"
-                    v-if="item.type === 'text'" />
+                <span class="settings-text-box-container settings-model" v-if="item.type === 'text'">
+                    <input class="settings-text-box" v-model="item.value" type="text"
+                        :readonly="typeof(item.readonly) === 'boolean'?item.readonly:true" :data-index="item.index" />
+                    <button class="settings-text-box-confirm"
+                        v-if="!(typeof(item.readonly) === 'boolean'?item.readonly:true)"
+                        :data-index="item.index">@{dict.confirm}</button>
+                </span>
+
                 <input class="settings-checkbox settings-model" v-model="item.value" type="checkbox"
                     v-if="item.type === 'checkbox'" />
                 <select class="settings-select settings-model" v-if="item.type === 'select'" :value="item.value">
@@ -68,8 +77,16 @@
                         <option class="settings-option settings-model" :value="opt.name">
                             {{opt.show}}</option>
                     </template>
-
                 </select>
+                <span v-if="item.type === 'image'" class="settings-model settings-image-container" :data-index="item.index" :data-edit="item.edit">
+                    <img class="settings-image settings-model" :src="item.src" :height="item.height || '32px'"
+                        :width="item.width || '32px'" :alt="item.content">
+                    <span class="settings-img-edit-area" v-show="item.edit">
+                        @{settings.select_image} <input type="file" accept="image/*" :multiple="item.multiple || false"
+                            :data-index="item.index" class="settings-model upload-image-button">
+                    </span>
+                </span>
+
             </div>
         </template>
         <!-- spaces for switch-button -->

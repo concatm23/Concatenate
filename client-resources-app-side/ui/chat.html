@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 
 <head>
@@ -53,7 +54,7 @@
                 <div class="message-template" :msg_index="item.index" :msg_cursor="item.cursor">
                     <span class="message-model message-meta">
                         <img src="unknown.png" :data-sender="item.uid" :data-sender-name="item.username" height="32px"
-                            width="32px" class="message-model message-avatar">
+                            width="32px" class="message-model message-avatar" @click="download_avatar">
                         <span class="message-model message-sender">{{item.username}}</span>
                         &nbsp;
                         <span class="message-model message-ip">{{item.location}}
