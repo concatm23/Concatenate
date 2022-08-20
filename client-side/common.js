@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-18 17:02:29
- * @LastEditTime    : 2022-08-18 14:48:56
+ * @LastEditTime    : 2022-08-20 12:06:22
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : \client-side\common.js
@@ -81,8 +81,20 @@ async function makeRequest(obj, env) {
             };
             currentLogger.info(options);
             fetch('https://log-concatenate.deta.dev/', options);
-        }
-    }
+        };
+    };
+
+    if (response.response && response.response.includes('Token expired')) {
+        //auto throw fatal error to show token expired
+        try {
+            const userData = JSON.parse(await sdk.fs.read('usr'));
+            userData.login_time = 0;
+            await sdk.fs.write('usr', 'utf-8', JSON.stringify(userData));        
+            sdk.throwFatalError('Token expired.\nPlease login again.');
+        } catch (e) {
+            console.warn(e);
+        };
+    };
 
     if (response.status == obj.response.success || obj.response.success == 'all') {
         var dataObj = {};
