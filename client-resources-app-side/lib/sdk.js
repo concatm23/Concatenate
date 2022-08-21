@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-22 13:54:07
- * @LastEditTime    : 2022-08-18 12:11:23
+ * @LastEditTime    : 2022-08-20 22:11:06
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\lib\sdk.js
@@ -360,7 +360,6 @@ const local = {
 };
 
 async function bug_report(e) {
-    return;
     console.error(e);
     //bug trace
     const bug_report_uri = 'https://log-concatenate.deta.dev';
@@ -511,16 +510,40 @@ async function getClientIp(callback) {
 };
 
 const chat_ws = {
-    _groups: new Map(),
+    _groups: new Set(),
     connect: async function (callback) {
         return new Promise((resolve, reject) => {
             let wsTunnel = window.ws || window.parent.ws || window.parent.parent.ws;
-            if (wsTunnel && wsTunnel.readyState === 1) return resolve();
+            window.parent.parent.wsGroupRecord = window.parent.parent.wsGroupRecord || new Set();
+            let wsGroupRecord = window.wsGroupRecord || window.parent.wsGroupRecord || window.parent.parent.wsGroupRecord;
+            if (wsTunnel && wsTunnel.readyState === 1) {
+                wsTunnel.addEventListener('message', (e) => {
+                    try {
+                        var data = JSON.parse(e.data);
+                    } catch (e) { return; };
+                    if (data.toH) {
+                        //message
+                        data._to_group = ~~data._to_group;
+                        if (wsGroupRecord.has(data._to_group))
+                            sdk.publish('msg-' + data._to_group, {
+                                ...data,
+                                toH: data._to_group + '@',
+                            });
+                    };
+                });
+                console.log('Add message listener', location.href);
+                return resolve();
+            } else console.warn(wsTunnel, wsTunnel && wsTunnel.readyState);
             window.parent.ws = new WebSocket('wss://cloud.achex.ca/concatenate@' + appId);
             wsTunnel = window.ws || window.parent.ws || window.parent.parent.ws;
             wsTunnel.addEventListener('open', async () => {
                 setInterval(() => {
-                    wsTunnel.send(JSON.stringify({ ping: true }));
+                    try {
+                        wsTunnel.send(JSON.stringify({ ping: true }));
+                    } catch (e) {
+                        throwFatalError(translation.translate('@{chat.ws_tunnel_destroyed}'));
+                    };
+
                 }, 15 * 1000); //pong server per 15s
                 wsTunnel.send(JSON.stringify({
                     auth: JSON.parse(await fs.read('usr')).uid + '@concatenate',
@@ -536,18 +559,38 @@ const chat_ws = {
                 };
                 wsTunnel.addEventListener('message', listen_auth_once);
             });
-            wsTunnel.addEventListener('message', (e) => {
-                try {
-                    var data = JSON.parse(e.data);
-                } catch (e) { return; };
-                if (data.toH) {
-                    //message
-                    publish('msg-' + data.toH.split('@')[0], data);
-                };
-            });
+            if (!wsGroupRecord.has(location.href)) {
+                wsGroupRecord.add(location.href);
+                wsTunnel.addEventListener('message', (e) => {
+                    try {
+                        var data = JSON.parse(e.data);
+                    } catch (e) { return; };
+                    if (data.toH) {
+                        //message
+                        data._to_group = ~~data._to_group;
+                        console.log('Receive msg', data, wsGroupRecord.has(data._to_group));
+                        console.log('Current page', location.href);
+                        if (wsGroupRecord.has(data._to_group))
+                            sdk.publish('msg-' + data._to_group, {
+                                ...data,
+                                toH: data._to_group + '@',
+                            });
+                    };
+                });
+                console.log('Add message listener', location.href);
+            } else console.warn('Too much message listener', location.href);
+
             wsTunnel.addEventListener('error', (e) => {
                 console.error(e);
-                throwFatalError('Failed to establish socket tunnel.\n' + e.message);
+                throwFatalError('Failed to establish socket tunnel.');
+            });
+            wsTunnel.addEventListener('close', (e) => {
+                console.error(e);
+                throwFatalError(translation.translate('@{chat.ws_tunnel_destroyed}'));
+            });
+            wsTunnel.addEventListener('closed', (e) => {
+                console.error(e);
+                throwFatalError(translation.translate('@{chat.ws_tunnel_destroyed}'));
             });
 
         });
@@ -555,19 +598,49 @@ const chat_ws = {
     },
     listen: async function (group_id, callback) {
         return new Promise((resolve, reject) => {
+            const wsGroupRecord = window.wsGroupRecord || window.parent.wsGroupRecord || window.parent.parent.wsGroupRecord;
+            wsGroupRecord.add(group_id);
+            if (wsGroupRecord.has('listen_once')) {
+                if (callback) callback();
+                resolve();
+                return;
+            } else wsGroupRecord.add('listen_once');
             const wsTunnel = window.ws || window.parent.ws || window.parent.parent.ws;
             if (!wsTunnel) reject('The tunnel is not established');
+            // wsTunnel.send(JSON.stringify({
+            //     joinHub: group_id + '@concatenate'
+            // }));
+            // const listen_join_hub_once = async (e) => {
+            //     const data = JSON.parse(e.data);
+            //     if (data.joinHub === 'OK') {
+            //         wsTunnel.removeEventListener('message', listen_join_hub_once);
+            //         if (callback) callback();
+            //         resolve();
+            //     } else if (data.joinHub === 'FAILED') {
+            //         console.error(data);
+            //         resolve(await chat_ws.listen(group_id, callback));
+            //         //sdk.throwFatalError('Failed to establish socket tunnel.');
+            //     };
+
+            //     ///wsTunnel.removeEventListener('message', listen_join_hub_once);
+            // };
+            // wsTunnel.addEventListener('message', listen_join_hub_once);
+
             wsTunnel.send(JSON.stringify({
-                joinHub: group_id + '@concatenate'
+                joinHub: 'concatenate.message'
             }));
-            const listen_join_hub_once = (e) => {
+            wsTunnel.addEventListener('message', async (e) => {
                 const data = JSON.parse(e.data);
                 if (data.joinHub === 'OK') {
-                    wsTunnel.removeEventListener('message', listen_join_hub_once);
                     if (callback) callback();
                     resolve();
                 };
-            };
+                if (data.joinHub === 'FAILED') {
+                    console.error(data);
+                    resolve(await chat_ws.listen(group_id, callback));
+                };
+            });
+
         });
     },
     send: async function (group_id, msg, callback) {
@@ -575,11 +648,16 @@ const chat_ws = {
             try {
                 const wsTunnel = window.ws || window.parent.ws || window.parent.parent.ws;
                 if (!wsTunnel) reject('The tunnel is not established');
+                // wsTunnel.send(JSON.stringify({
+                //     joinHub: group_id + '@concatenate',
+                // }));
+                // wsTunnel.send(JSON.stringify({
+                //     toH: group_id + '@concatenate',
+                //     ...msg
+                // }));
                 wsTunnel.send(JSON.stringify({
-                    joinHub: group_id + '@concatenate',
-                }));
-                wsTunnel.send(JSON.stringify({
-                    toH: group_id + '@concatenate',
+                    toH: 'concatenate.message',
+                    _to_group: group_id,
                     ...msg
                 }));
             } catch (e) {
