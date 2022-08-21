@@ -1,14 +1,15 @@
 
-
 const groupId = location.search.substring(1);
 
 const wsPackage = fRequire('../script/message.js');
+const prompt = fRequire('../lib/prompt.js');
 
 sdk.once('ui-back-page', () => {
     parent.document.querySelector('.group-frame').style.display = 'none';
 });
 
 const messagePackage = fRequire('../lib/msg.js');
+const syncMessage = fRequire('../script/groups.syncMessage.js');
 
 const MSG_MIN_LIMIT = 5, MSG_MAX_LIMIT = 1000;
 
@@ -176,6 +177,135 @@ const getAllMessages = () => {
     });
 };
 
+sdk.on('invite-member', async () => {
+    var uid_or_username = await prompt(translation.translate('@{chat.input_uid_or_username}'));
+    if (uid_or_username === null || uid_or_username === '') return;
+    const userInfo = await (await sdk.remote.do('usr.getinfo', {uid: uid_or_username})).json();
+    if (userInfo.status === 'success') {
+        const uid = userInfo.data.uid;
+        const response = await (await sdk.remote.do('group.invite', {
+            token: sessionStorage.user_token,
+            groupID: groupId,
+            inviteUser: uid
+        })).json();
+        if (response.status === 'success') {
+            await sdk.chatWs.send(groupId, {
+                cType: 0,
+                cursor: new Date().getTime(),
+                sender: 'concatenate',
+                sender_uid: 0,
+                msg: `${sessionStorage.username} invited ${userInfo.data.username} to join the group.`,
+                ip: '0.0.0.0',
+            });
+            setTimeout(async () => {
+                await syncMessage(groupId);
+
+                location.reload(); //reload
+            }, 2000);
+            
+        }
+        else alert(JSON.parse(response.data.source_return).data);
+    } else alert(userInfo.data);
+});
+
+sdk.on('kick-member', async () => {
+    var uid_or_username = await prompt(translation.translate('@{chat.input_uid_or_username}'));
+    if (uid_or_username === null || uid_or_username === '') return;
+    const userInfo = await (await sdk.remote.do('usr.getinfo', { uid: uid_or_username })).json();
+    if (userInfo.status === 'success') {
+        const uid = userInfo.data.uid;
+        const response = await (await sdk.remote.do('group.kick', {
+            token: sessionStorage.user_token,
+            groupID: groupId,
+            kickUser: uid
+        })).json();
+        if (response.status === 'success') {
+            await sdk.chatWs.send(groupId, {
+                cType: 0,
+                cursor: new Date().getTime(),
+                sender: 'concatenate',
+                sender_uid: 0,
+                msg: `${sessionStorage.username} kicked ${userInfo.data.username}`,
+                ip: '0.0.0.0',
+            });
+            setTimeout(async () => {
+                await syncMessage(groupId);
+
+                location.reload(); //reload
+            }, 2000);
+
+        }
+        else alert(JSON.parse(response.data.source_return).data);
+    } else alert(userInfo.data);
+});
+
+sdk.on('edit-alias', async () => {
+    const alias = await prompt(translation.translate('@{chat.input_alias}'));
+    if (alias === null) return;
+    if (alias.length > 20) return messagePackage.tellUser('@{groups.alias_at_most_20}');
+    if (alias.length < 2) return messagePackage.tellUser('@{groups.alias_at_least_2}');
+
+    await sdk.remote.do('group.update', {
+        type: 'alias',
+        value: alias,
+        groupID: groupId,
+        token: sessionStorage.user_token
+    });
+
+    //update data in cache
+    const groupInfo = JSON.parse(await (await sdk.local.do('webcache.get', {
+        key: 'group-' + groupId
+    })).text() || '{}');
+    groupInfo.name = alias;
+    await sdk.local.do('webcache.set', {
+        key: 'group-' + groupId,
+        value: JSON.stringify(groupInfo)
+    });
+
+    sessionStorage.setItem('group-alias-' + groupId, alias);
+
+    await sdk.chatWs.send(groupId, {
+        cType: 0,
+        cursor: new Date().getTime(),
+        sender: 'concatenate',
+        sender_uid: 0,
+        msg: `${sessionStorage.username} edited alias to "${alias}"`,
+        ip: '0.0.0.0',
+    });
+
+    setTimeout(async () => {
+        await syncMessage(groupId);
+
+        location.reload(); //reload
+    }, 2000);
+
+});
+
+sdk.chatWs.connect();
+
+sdk.on('msg-' + groupId, async (msg) => {
+    //push to end
+    const len = window.chat_msg_lists.length;
+    window.chat_msg_lists.push({
+        index: len,
+        cursor: msg.cursor,
+        uid: msg.sender_uid,
+        username: msg.sender,
+        status: MSG_STATUS_ENUM.MSG_OTHER_SENDED & MSG_STATUS_ENUM.MSG_RECEIVED,
+        timestamp: parseInt(msg.cursor) || new Date().getTime(),
+        content: msg.msg,
+        ip: msg.ip,
+        location: 'Unknown'
+    });
+    //render to page
+    requestIdleCallback(updateIp.bind(this,window.chat_msg_lists[window.chat_msg_lists.length - 1], window.chat_msg_lists, len));
+    //render ip
+
+    requestIdleCallback(loadAvatar.bind(this, msg.sender_uid, len));
+    //render avatar
+    
+});
+
 const convertDatabaseRecordToRenderView = (records) => {
     return new Promise((resolve, reject) => {
         const lists = [];
@@ -201,6 +331,9 @@ const convertDatabaseRecordToRenderView = (records) => {
     });
 };
 
+const waitTime = (time) => new Promise((resolve, reject) => setTimeout(resolve,time));
+const current_limiting = new Set();
+
 const updateIp = async (record, lists, index) => {
     const logger = new sdk.common.logger('Update IP/Client');
     logger.info('Get info for', record.ip);
@@ -221,6 +354,12 @@ const updateIp = async (record, lists, index) => {
         lists[index].location = ip_record;
         return;
     };
+
+    //request remote server must limit
+    while (current_limiting.has('ip-' + record.ip)) {
+        await waitTime(200);
+    };
+    current_limiting.add('ip-' + record.ip);
 
     //get ip information from the remote server
     ip_record = await (await sdk.remote.do('ip.get', {
@@ -247,6 +386,8 @@ const updateIp = async (record, lists, index) => {
         expires_at: new Date().getTime() + 0x3f3f3f3f * 1000
         //not expires
     });
+
+    current_limiting.delete('ip-' + record.ip);
 };
 
 const dataurl2blob = fRequire('../lib/dataurl2blob.js');
@@ -284,22 +425,27 @@ const getAvatarLink = (user_uid) => {
 
     return new Promise(async (resolve, reject) => {
         if (avatar_blob_cache_map[user_uid]) {
-            logger.info(avatar_blob_cache_map[user_uid],'for user',user_uid);
+            logger.info(avatar_blob_cache_map[user_uid], 'for user', user_uid);
             resolve(avatar_blob_cache_map[user_uid]);
             return;
         };
         //hit memory cache, load from it
 
         //check from the disk cache
-        let data = await(await sdk.local.do('webcache.get', {
+        let data = await (await sdk.local.do('webcache.get', {
             key: 'avatar-cache-user-' + user_uid
         })).text();
 
         if (data === 'error') //fetch image failed
-            return;
+            resolve('');
 
         if (data === '') {
             //cannot find in the disk
+
+            while (current_limiting.has('request-avatar-' + user_uid)) {
+                await waitTime(2000);
+            };
+            current_limiting.add('request-avatar-' + user_uid);
             const response = await fetch(`https://download-concatenate.deta.dev/user-avatar/${user_uid}`);
             if (response.ok) {
                 const blob = await response.blob();
@@ -312,11 +458,12 @@ const getAvatarLink = (user_uid) => {
                         value: reader.result,
                         expires_at: new Date().getTime() + 1000 * 60 * 60 * 24 * 14 //save for 14 days
                     });
+                    current_limiting.delete('request-avatar-' + user_uid);
                     resolve(await getAvatarLink(user_uid)); //recall
                 };
             } else {
                 //failed to request
-                const default_dataurl = await(await sdk.local.do('webcache.get', {
+                const default_dataurl = await (await sdk.local.do('webcache.get', {
                     key: 'avatar-cache-group-1',
                 })).text();
                 await sdk.local.do('webcache.set', {
@@ -324,6 +471,7 @@ const getAvatarLink = (user_uid) => {
                     value: default_dataurl || 'error',
                     expires_at: new Date().getTime() + 1000 * 60 * 60 * 24 * 3 //save for 3days
                 });
+                current_limiting.delete('request-avatar-' + user_uid);
                 resolve(await getAvatarLink(user_uid)); //recall
 
             };
@@ -366,6 +514,48 @@ const detectAllowAnonymous = async () => {
     console.log('%c We have permissions detect in server, and in client it\'s only convenient for user.', 'background-color: black; color: #00ff00;')
 };
 
+const detectAllowInviteMember = async () => {
+    let canInviteMember = false;
+    const groupData = await (await sdk.local.do('webcache.get', {
+        key: 'group-' + groupId
+    })).json();
+
+    const myPermission = getMyPermission(groupData);
+    if (myPermission === MANAGER_PERMISSION) canInviteMember = true;
+    if (myPermission === ADMIN_PERMISSION && groupData.permission.admin.invite) canInviteMember = true;
+    if (myPermission === DEFAULT_PERMISSION && groupData.permission.default.invite) canInviteMember = true;
+
+    window.inputAreaVue.state.isCouldInviteMember = canInviteMember;
+};
+
+const detectAllowKickMember = async () => {
+    let canKickMember = false;
+    const groupData = await (await sdk.local.do('webcache.get', {
+        key: 'group-' + groupId
+    })).json();
+
+    const myPermission = getMyPermission(groupData);
+    if (myPermission === MANAGER_PERMISSION) canKickMember = true;
+    if (myPermission === ADMIN_PERMISSION && groupData.permission.admin.kick) canKickMember = true;
+    if (myPermission === DEFAULT_PERMISSION && groupData.permission.default.kick) canKickMember = true;
+
+    window.inputAreaVue.state.isCouldKickMember = canKickMember;
+};
+
+const detectAllowEditAlias = async () => {
+    let canEditAlias = false;
+    const groupData = await (await sdk.local.do('webcache.get', {
+        key: 'group-' + groupId
+    })).json();
+
+    const myPermission = getMyPermission(groupData);
+    if (myPermission === MANAGER_PERMISSION) canEditAlias = true;
+    if (myPermission === ADMIN_PERMISSION && groupData.permission.admin.editGroupAlias) canEditAlias = true;
+    if (myPermission === DEFAULT_PERMISSION && groupData.permission.default.editGroupAlias) canEditAlias = true;
+
+    window.inputAreaVue.state.isCouldEditAlias = canEditAlias;
+};
+
 
 const DEFAULT_PERMISSION = 1, ADMIN_PERMISSION = 2, MANAGER_PERMISSION = 4;
 function getMyPermission(groupData) {
@@ -388,6 +578,9 @@ module.exports = {
     convertDatabaseRecordToRenderView,
     loadAvatars,
     detectAllowAnonymous,
+    detectAllowInviteMember,
+    detectAllowKickMember,
+    detectAllowEditAlias,
     updateIp,
     getMyPermission,
     loadAvatars,

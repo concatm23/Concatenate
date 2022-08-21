@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-23 20:15:08
- * @LastEditTime    : 2022-07-30 17:49:42
+ * @LastEditTime    : 2022-08-20 10:44:36
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\groups.render.js
@@ -14,6 +14,7 @@
  */
 module.exports = {
     renderTitle: function () {
+        requestIdleCallback(translation.translatePage);
         //translation ready
         const title = new Vue({
             el: '.title',
@@ -63,8 +64,7 @@ module.exports = {
                 name: lists[i][0],
                 last_msg: new Date(lists[i][1].last_msg || 0).toISOString(),
                 new_message_counts: lists[i][1].msg_counts || 0,
-                list_id: bottom_index,
-                id: lists[i][0]
+                list_id: i,
             });
             bottom_index = i;
         };
@@ -151,5 +151,16 @@ module.exports = {
         watcher.observe(bottom_sentinel);
 
         return vue_render_lists.visible_list;
+    },
+    renderButtons () {
+        // window.buttonsVue = new Vue({
+        //     el: '.new-group',
+        //     methods: {
+        //         new_group: function() {
+        //             sdk.publish('new-group');
+        //         }
+        //     }
+        // });
+        translation.translateElement('.new-group');
     }
 };

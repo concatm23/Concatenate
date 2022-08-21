@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-31 20:43:47
- * @LastEditTime    : 2022-08-18 09:53:23
+ * @LastEditTime    : 2022-08-19 15:56:55
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\chat.js
@@ -25,5 +25,8 @@ module.exports = function() {
 
     sdk.on('chat-page-loaded', operation.loadAvatars);
     sdk.on('chat-page-loaded', operation.detectAllowAnonymous);
+    sdk.on('chat-page-loaded', operation.detectAllowInviteMember);
+    sdk.on('chat-page-loaded', operation.detectAllowKickMember);
+    sdk.on('chat-page-loaded', operation.detectAllowEditAlias);
     sdk.on('chat-page-loaded', operation.scrollToBottom);
 };

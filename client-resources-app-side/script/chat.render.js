@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-31 22:06:36
- * @LastEditTime    : 2022-08-18 20:29:57
+ * @LastEditTime    : 2022-08-19 15:56:35
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\chat.render.js
@@ -100,6 +100,9 @@ module.exports = {
                     isSyncingMessage: sessionStorage['sync-msg-' + group_id] !== 'finished',
                     isBannedAnonymous: true,
                     isChattingAnonymous: false,
+                    isCouldInviteMember: false,
+                    isCouldKickMember: false,
+                    isCouldEditAlias: false,
                 }
             },
             methods: {
@@ -116,7 +119,16 @@ module.exports = {
                 },
                 refreshSyncingState() {
                     this.state.isSyncingMessage = sessionStorage['sync-msg-' + group_id] !== 'finished';
-                }
+                },
+                invite_member () {
+                    sdk.publish('invite-member');
+                },
+                kick_member () {
+                    sdk.publish('kick-member');
+                },
+                edit_alias () {
+                    sdk.publish('edit-alias');
+                },
             },
             mounted() {
                 setInterval(() => {

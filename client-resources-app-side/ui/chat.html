@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 
 <head>
@@ -83,5 +82,13 @@
         <!-- <button @click="delete_msg">@{chat.delete_all_msg}</button> -->
         <button @click="send_msg" class="send_msg_button"
             :disabled="state.isSyncingMessage || this.content.length < 5 || this.content.length > 1000">@{chat.sendMsgButton}</button>
+        <br>
+        <button @click="invite_member" class="invite_member_button"
+            :disabled="!state.isCouldInviteMember">@{chat.invite_member}</button>
+        <button @click="kick_member" class="kick_member_button"
+            :disabled="!state.isCouldKickMember">@{chat.kick_member}</button>
+
+        <button @click="edit_alias" class="edit_alias_button"
+            :disabled="!state.isCouldEditAlias">@{chat.edit_alias}</button>
     </div>
 </body>

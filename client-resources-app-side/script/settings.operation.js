@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-31 13:24:37
- * @LastEditTime    : 2022-08-19 13:32:35
+ * @LastEditTime    : 2022-08-19 15:31:02
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\settings.operation.js
@@ -13,29 +13,29 @@
  * @Whether it's right or wrong, success or failure, it's all empty now, and it's all gone with the passage of time. The green hills of the year still exist, and the sun still rises and sets.
  */
 module.exports = {
-    logout: async function() {
+    logout: async function () {
         const login_content = JSON.parse(await sdk.fs.read('usr')); //read user data
         login_content.login_time = 0; //set login time = 0, so that the software will recognize user login expires  
-        await sdk.fs.write('usr','binary', JSON.stringify(login_content));
+        await sdk.fs.write('usr', 'binary', JSON.stringify(login_content));
         //refresh the page
         parent.location.reload();
     },
-    quitAPP: async function() {
+    quitAPP: async function () {
         sdk.quit_app();
     },
-    changeLanguage: async function(val) {
+    changeLanguage: async function (val) {
         if (!val) return;
         var config = await sdk.getConfig('');
         config.user_config.lang = val;
         sdk.setConfig(config);
         location.reload();
     },
-    clearCache: async function() {
+    clearCache: async function () {
         const clearState = await sdk.clear_web_cache();
         if (!clearState) alert(translation.translate('@{settings.fail_to_clear_cache}'));
         else alert(translation.translate('@{settings.clear_cache_success}'));
     },
-    uploadUserAvatar: async function(files, display, index, element) {
+    uploadUserAvatar: async function (files, display, index, element) {
         //display.edit = false;
         //why vue does not work?
         element.style.display = 'none';
@@ -61,7 +61,7 @@ module.exports = {
         fileReader.onload = async () => {
             //convert blob to base64
             const fileBase64 = fileReader.result.substring(fileReader.result.indexOf('base64,') + 7 /* the length of 'base64,' */);
-            
+
             const response = await (await sdk.remote.do('fs.uploadAvatar', {
                 token: sessionStorage.user_token,
                 user_uid: sessionStorage.uid,
@@ -69,10 +69,14 @@ module.exports = {
             })).json();
 
             if (response.status === 'success') {
-                await sdk.local.do('webcache.delete', {
-                    key: 'avatar-cache-user-' + sessionStorage.uid
-                });
-                //remove cache
+                setTimeout(() => {
+                    sdk.local.do('webcache.delete', {
+                        key: 'avatar-cache-user-' + sessionStorage.uid
+                    });
+                    //remove cache in 5min
+                }, 5 * 60 * 1000);
+                alert(translation.translate('@{settings.upload_avatar_success}'))
+
                 location.reload();
                 //reload the page
             } else alert(translation.translate('@{settings.failed_to_update_avatar}'))

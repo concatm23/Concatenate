@@ -1,7 +1,7 @@
 <!--
  * @Author          : lihugang
  * @Date            : 2022-07-23 20:05:46
- * @LastEditTime    : 2022-08-18 13:57:38
+ * @LastEditTime    : 2022-08-19 15:32:43
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\ui\groups.html
@@ -54,6 +54,10 @@
     <div class="title">
         <img class="software-icon" src="icon.png" height="32px" width="32px">
         <span class="software-title">{{app.name}}</span>
+    </div>
+    <div class="new-group">
+        <button id="new-group-button" onclick="javascript: fRequire('../script/groups.operation.js').create_new_group()">@{groups.create_new_group}</button>
+        <!-- I don't know why vue and native listen api doesn't work -->
     </div>
     <div class="groups-list">
         <span id="top-sentinel"></span>

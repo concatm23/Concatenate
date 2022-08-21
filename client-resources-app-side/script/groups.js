@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-23 20:14:51
- * @LastEditTime    : 2022-08-17 09:54:36
+ * @LastEditTime    : 2022-08-20 19:10:56
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\groups.js
@@ -35,6 +35,8 @@ module.exports = function () {
             fetch_data.remote()
         ]); //fetch group list data from local and remote server
         logger.debug('groups lists',lists);
+
+        const remote_lists = lists[1];
         
         logger.info('Unique lists');
         lists = await operations.unique(lists[0], lists[1]);
@@ -70,6 +72,8 @@ module.exports = function () {
         const msg = fRequire('../script/message.js');
         msg.set('notification', notification.notice); //bind notice function to the message callback
 
-        msg.init(lists); //create socket and listen
+        msg.init(remote_lists); //create socket and listen
+
+        renders.renderButtons();
     });
 };

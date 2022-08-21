@@ -2,7 +2,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-24 16:19:31
- * @LastEditTime    : 2022-08-17 09:41:04
+ * @LastEditTime    : 2022-08-20 10:45:05
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\groups.operation.js
@@ -39,6 +39,26 @@ function ergodic_elements_request_idle(func, timeout = 5000) {
 
     };
 };
+
+
+const create_new_group = async () => {
+    //vue does not work?
+
+    const prompt = fRequire('../lib/prompt.js');
+    
+    //const group_name = await prompt(translation.translate('@{groups.enter_new_group_name}'));
+
+    await sdk.remote.do('group.create', {
+        token: JSON.parse(await sdk.fs.read('usr')).token
+    });
+
+    location.reload();
+};
+
+document.querySelector('#new-group-button').addEventListener('click', create_new_group);
+
+
+
 
 module.exports = {
     unique: async function (local_list, remote_list) {
@@ -163,6 +183,7 @@ module.exports = {
                 //get the index of the list
 
                 const object = window.render_list[index];
+                //console.info(id, index, object);
                 object.name = result.name; //set the alias
 
                 //cache to sessionStorage
@@ -303,5 +324,8 @@ module.exports = {
         map.forEach((val,key) => {
             requestIdleCallback(func.bind(this,key));
         });
-    }
+    },
+    create_new_group
 };
+
+
