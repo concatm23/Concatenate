@@ -1,3 +1,4 @@
+
 const fs = require('fs/promises');
 const webpack = require('webpack');
 const path = require('path');
@@ -18,11 +19,11 @@ const webpackPromise = (config) => {
     });
 };
 const chalk = require('chalk');
-const no_pack_dir = ['node_modules', 'FaaS', 'sdk.js', 'locales', 'css', 'backend', 'sql', 'fonts', '.html', '.png', '.jpg', 'require.js', 'localforage.js', 'dataurl2blob.js', 'vconsole.js', 'vue.js', 'image-conversion.js'];
+const no_pack_dir = ['node_modules', 'locales', 'css', 'backend', 'sql', 'fonts', '.html', '.png', '.jpg', 'localforage.js', 'dataurl2blob.js', 'vconsole.js', 'vue.js', 'image-conversion.js', '.md', 'require.js'];
 
 ((async () => {
 
-    const pack = async (source_path, target_path) => {
+    const pack = (source_path, target_path) => {
         const match_dir = (path) => {
             let isMatch = false;
             no_pack_dir.forEach((value) => {
@@ -70,21 +71,28 @@ const no_pack_dir = ['node_modules', 'FaaS', 'sdk.js', 'locales', 'css', 'backen
 
             const fileContent = (await fs.readFile(source_path, 'binary')).toString();
 
+            const tmpSourceFilename = Math.random().toString(36).substring(2);
+            const tmpTargetFilename = Math.random().toString(36).substring(2);
+
             if (isPack) {
                 //paste to tmp directory
-                await fs.writeFile('./tmp/src/index.js', '/* For debug: location: ' + source_path + ' */' + fileContent, 'binary');
-                const target = (fileContent.includes('module.exports')) ? (
+                await fs.writeFile('./tmp/src/' + tmpSourceFilename + '.js', '/* For debug: location: ' + source_path + ' */' + fileContent, 'binary');
+                const target = (source_path.includes('require.js') ? ('web') : ((fileContent.includes('module.exports')) ? (
                     'node'
                 ) : (
                     'web'
-                );
+                )));
                 try {
                     await webpackPromise({
-                        entry: './tmp/src/index.js',
+                        entry: './tmp/src/' + tmpSourceFilename + '.js',
                         output: {
                             path: path.join(__dirname, 'tmp/dist'),
-                            filename: 'main.js',
-                            libraryTarget: 'umd'
+                            filename: tmpTargetFilename + '.js',
+                            ...((target === 'node')?{
+                                libraryTarget: 'umd'
+                            }:{
+                                libraryTarget: 'window'
+                            })
                         },
                         mode: 'production',
                         target: [target, 'es5'],
@@ -113,7 +121,7 @@ const no_pack_dir = ['node_modules', 'FaaS', 'sdk.js', 'locales', 'css', 'backen
                     console.error(chalk.red('Webpack throw an error\nFile:' + source_path));
                     process.exit(1);
                 };
-                const packFileContent = await fs.readFile('./tmp/dist/main.js', 'binary');
+                const packFileContent = await fs.readFile('./tmp/dist/' + tmpTargetFilename + '.js', 'binary');
                 await fs.writeFile(target_path, '/* Webpack & Concatenate browser pack tool\n * Source Path:' + source_path + '\n * Target: ' + target + ' */\n' + packFileContent, 'binary');
             } else {
                 if (target_path.includes('.js')) await fs.writeFile(target_path, '/* Concatenate browser pack tool: This file is not compressed and converted into es5 */\n' + fileContent, 'binary');
