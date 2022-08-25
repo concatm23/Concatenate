@@ -1,10 +1,10 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-05-17 14:41:01
- * @LastEditTime    : 2022-07-25 21:04:37
+ * @LastEditTime    : 2022-08-25 21:48:29
  * @LastEditors     : lihugang
  * @Description     : 
- * @FilePath        : e:\Concatenate\git-rebuild\Concatenate\client-side\main.js
+ * @FilePath        : \Concatenate\client-side\main.js
  * @Copyright (c) lihugang
  * @长风破浪会有时 直挂云帆济沧海
  * @There will be times when the wind and waves break, and the sails will be hung straight to the sea.
@@ -38,6 +38,8 @@ var mainWindow = null; //Electron main window
 var mainWindow_ptr = new ptrObject({
     mainWindow
 });
+
+process.env.APPDATA = process.env.APPDATA || '~';
 
 const __resourcePath = (process.argv.indexOf('--fs') != -1 || true) ? __dirname : `${__dirname}/resources/app.asar`;
 
