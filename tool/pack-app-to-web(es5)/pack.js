@@ -1,29 +1,68 @@
 
 const fs = require('fs/promises');
-const webpack = require('webpack');
+const { existsSync } = require('fs');
 const path = require('path');
-const webpackPromise = (config) => {
-    return new Promise((resolve, reject) => {
-        webpack(config, (err, result) => {
-            if (err) {
-                console.error(chalk.red(err));
-                reject(err);
-                return;
-            };
-            if (result.hasErrors()) {
-                console.error(chalk.red(result.compilation.errors));
-                reject(err);
-            };
-            resolve(result);
-        });
-    });
-};
 const chalk = require('chalk');
 const no_pack_dir = ['node_modules', 'locales', 'css', 'backend', 'sql', 'fonts', '.html', '.png', '.jpg', 'localforage.js', 'dataurl2blob.js', 'vconsole.js', 'vue.js', 'image-conversion.js', '.md', 'require.js'];
 
+let maxWorkerThreads = -1;
+for (let i = 0, len = process.argv.length; i < len; i++) {
+    if (process.argv[i].indexOf('--max-workers') !== -1) {
+        maxWorkerThreads = ~~process.argv[i].split('=')[1];
+    };
+};
+if (maxWorkerThreads === -1 || maxWorkerThreads === 0) maxWorkerThreads = require('os').cpus().length; //cpu cores
+
+const { Worker } = require('worker_threads');
+const workers = new Array(maxWorkerThreads).fill(new Worker(path.join(__dirname, 'pack.worker.js')));
+const stat = new Worker(path.join(__dirname, 'pack.stat.js'));
+const workers_descriptor = new Array(maxWorkerThreads).fill(false);
+
+const workerPromise = async (config) => {
+    return new Promise(async (resolve, reject) => {
+
+        let useThreadID = -1;
+        do {
+            for (let i = 0; i < workers_descriptor.length; i++) {
+                if (workers_descriptor[i] === false) {
+                    useThreadID = i;
+                    workers_descriptor[i] = true;
+                    break;
+                };
+            };
+            if (useThreadID === -1) await delay(maxWorkerThreads * 1000 * 2);
+        } while (useThreadID === -1);
+
+        const worker = workers[useThreadID];
+        worker.postMessage(config);
+
+        worker.once('message', async (result) => {
+            if (result instanceof Error) return reject(result);
+            workers_descriptor[useThreadID] = false;
+            let isFileExists = null;
+            do {
+                isFileExists = existsSync(path.join(config.output.path, config.output.filename));
+                if (!isFileExists) await delay(maxWorkerThreads * 200);
+            } while (!isFileExists);
+            return resolve(result);
+            
+        });
+    });
+};
+
+const delay = (t) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve(t);
+        }, t);
+    });
+};
+
 ((async () => {
 
-    const pack = (source_path, target_path) => {
+    console.log(chalk.hex('#00ff00')('Max worker threads:',maxWorkerThreads));
+
+    const pack = async (source_path, target_path) => {
         const match_dir = (path) => {
             let isMatch = false;
             no_pack_dir.forEach((value) => {
@@ -50,17 +89,19 @@ const no_pack_dir = ['node_modules', 'locales', 'css', 'backend', 'sql', 'fonts'
                 isPack && console.time(chalk.green('Packing directory', source_path));
                 !isPack && console.time(chalk.yellow('Copying directory', target_path));
                 const dirFiles = await fs.readdir(source_path);
+                const promises = [];
                 for (var i = 0, len = dirFiles.length; i < len; i++) {
                     const file = dirFiles[i];
-                    await pack_dir(
+                    promises.push(pack_dir(
                         path.join(source_path, '/', file),
                         path.join(target_path, '/', file),
-                        !isNoPack);
+                        !isNoPack));
                 };
+                await Promise.all(promises);
                 isPack && console.timeEnd(chalk.green('Packing directory', source_path));
                 !isPack && console.timeEnd(chalk.yellow('Copying directory', target_path));
             } else {
-                pack_file(source_path, target_path, isPack);
+                await pack_file(source_path, target_path, isPack);
             };
 
         };
@@ -71,34 +112,69 @@ const no_pack_dir = ['node_modules', 'locales', 'css', 'backend', 'sql', 'fonts'
 
             const fileContent = (await fs.readFile(source_path, 'binary')).toString();
 
-            const tmpSourceFilename = Math.random().toString(36).substring(2);
-            const tmpTargetFilename = Math.random().toString(36).substring(2);
+            const tmpFilename = Math.random().toString(36).substring(2);
 
             if (isPack) {
                 //paste to tmp directory
-                await fs.writeFile('./tmp/src/' + tmpSourceFilename + '.js', '/* For debug: location: ' + source_path + ' */' + fileContent, 'binary');
+                await fs.writeFile('./tmp/src/' + tmpFilename + '.js', '/* For debug: location: ' + source_path + ' */' + fileContent, 'binary');
                 const target = (source_path.includes('require.js') ? ('web') : ((fileContent.includes('module.exports')) ? (
                     'node'
                 ) : (
                     'web'
                 )));
+                const isArgvContains = (str) => process.argv.indexOf(str) !== -1;
+                const isProductionMode = !isArgvContains('--debug');
+                const supportBrowser = (isArgvContains('--2000') || isArgvContains('--ie5')) ? ({
+                    ie: 5
+                }) : (
+                    (isArgvContains('--es3') ? ({
+                        chrome: 4,
+                        edge: 12,
+                        safari: 3.1,
+                        firefox: 2,
+                        opera: 10,
+                        ie: 6
+                    }) : ((isArgvContains('--es5') ? ({
+                        chrome: 23,
+                        edge: 12,
+                        safari: 6,
+                        firefox: 21,
+                        opera: 15,
+                        ie: 10
+                    }) : (
+                        (isArgvContains('--ie11') ? ({
+                            ie: 11
+                        }) : (
+                            {
+                                //es6
+                                chrome: 51,
+                                edge: 15,
+                                safari: 10,
+                                firefox: 54,
+                                opera: 38
+                            }
+                        ))
+                    ))))
+                );
+                const isNoBabel = isArgvContains('--no-convert');
                 try {
-                    await webpackPromise({
-                        entry: './tmp/src/' + tmpSourceFilename + '.js',
+                    await workerPromise({
+                        entry: './tmp/src/' + tmpFilename + '.js',
                         output: {
                             path: path.join(__dirname, 'tmp/dist'),
-                            filename: tmpTargetFilename + '.js',
-                            ...((target === 'node')?{
-                                libraryTarget: 'umd'
-                            }:{
-                                libraryTarget: 'window'
-                            })
+                            filename: tmpFilename + '.js',
+                            libraryTarget: target === 'node' ? 'umd' : 'window'
                         },
-                        mode: 'production',
+                        mode: isProductionMode ? 'production' : 'development',
                         target: [target, 'es5'],
+                        ...(isProductionMode ? {
+                        } : {
+                            devtool: 'inline-source-map'
+                        }
+                        ),
                         module: {
                             rules: [
-                                {
+                                isNoBabel?({}):{
                                     test: /(\.html|\.js)$/,
                                     use: {
                                         loader: 'babel-loader',
@@ -106,7 +182,9 @@ const no_pack_dir = ['node_modules', 'locales', 'css', 'backend', 'sql', 'fonts'
                                             presets: [
                                                 [
                                                     '@babel/preset-env', {
-                                                        // useBuiltIns: 'usage'
+                                                        useBuiltIns: 'usage',
+                                                        corejs: 2,
+                                                        targets: supportBrowser
                                                     },
                                                 ],
 
@@ -121,8 +199,8 @@ const no_pack_dir = ['node_modules', 'locales', 'css', 'backend', 'sql', 'fonts'
                     console.error(chalk.red('Webpack throw an error\nFile:' + source_path));
                     process.exit(1);
                 };
-                const packFileContent = await fs.readFile('./tmp/dist/' + tmpTargetFilename + '.js', 'binary');
-                await fs.writeFile(target_path, '/* Webpack & Concatenate browser pack tool\n * Source Path:' + source_path + '\n * Target: ' + target + ' */\n' + packFileContent, 'binary');
+                const packFileContent = await fs.readFile('./tmp/dist/' + tmpFilename + '.js', 'binary');
+                await fs.writeFile(target_path, '/* Webpack & Concatenate browser pack tool\n * Source Path:' + source_path + '\n * Target: ' + target + '\n * Mode: ' + (isProductionMode ? 'production' : 'development') + '*/\n' + packFileContent, 'binary');
             } else {
                 if (target_path.includes('.js')) await fs.writeFile(target_path, '/* Concatenate browser pack tool: This file is not compressed and converted into es5 */\n' + fileContent, 'binary');
                 else if (target_path.includes('.html')) await fs.writeFile(target_path, '<!-- Concatenate browser pack tool: This file is not compressed and converted into es5 -->\n' + fileContent, 'binary');
@@ -133,7 +211,7 @@ const no_pack_dir = ['node_modules', 'locales', 'css', 'backend', 'sql', 'fonts'
             !isPack && console.timeEnd(chalk.green('Copying file', source_path));
         };
 
-        pack_dir(source_path, target_path);
+        await pack_dir(source_path, target_path);
     };
 
     try {
@@ -148,7 +226,11 @@ const no_pack_dir = ['node_modules', 'locales', 'css', 'backend', 'sql', 'fonts'
 
     await pack('./resource-app', './resource-web');
 
+    stat.postMessage('end');
+
     try {
         await fs.rmdir('./tmp');
     } catch (e) { };
+
+    process.exit(0);
 })());
