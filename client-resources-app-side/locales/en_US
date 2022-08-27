@@ -68,5 +68,6 @@
     "dict.profile": "Profile",
     "dict.confirm": "Confirm",
     "dict.uid": "Unique ID",
-    "dict.avatar": "Avatar"
+    "dict.avatar": "Avatar",
+    "dict.about": "About"
 }

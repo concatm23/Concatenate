@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-31 13:28:20
- * @LastEditTime    : 2022-08-18 21:30:15
+ * @LastEditTime    : 2022-08-27 13:00:10
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\settings.options.js
@@ -107,6 +107,12 @@ const export_list = {
             },
             bind: operation.quitAPP,
             id: 'quit-app'
+        },
+        {
+            type: 'button',
+            content: '@{dict.about}',
+            bind: operation.about,
+            id: 'about'
         },
     ],
 };

@@ -68,5 +68,6 @@
     "dict.profile": "个人信息",
     "dict.confirm": "确认",
     "dict.uid": "用户ID",
-    "dict.avatar": "头像"
+    "dict.avatar": "头像",
+    "dict.about": "关于"
 }

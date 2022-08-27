@@ -1,7 +1,7 @@
 /**
  * @Author          : lihugang
  * @Date            : 2022-07-31 13:24:37
- * @LastEditTime    : 2022-08-19 15:31:02
+ * @LastEditTime    : 2022-08-27 12:58:12
  * @LastEditors     : lihugang
  * @Description     : 
  * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\script\settings.operation.js
@@ -81,6 +81,9 @@ module.exports = {
                 //reload the page
             } else alert(translation.translate('@{settings.failed_to_update_avatar}'))
         };
+    },
+    about: () => {
+        window.open('https://concatenate.deta.dev/about/1.0.0');
     }
 };
 
