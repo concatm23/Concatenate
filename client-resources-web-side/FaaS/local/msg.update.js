@@ -1,6 +1,6 @@
 module.exports = async function main(data) {
 
-    var records = await localforage.getItem('group.' + group_id);
+    var records = await localforage.getItem('msg.group.' + group_id);
     records.forEach((val) => {
         if (val.cursor === data.location) {
             for (var key in data) {
@@ -10,6 +10,6 @@ module.exports = async function main(data) {
             };
         };
     });
-    await localforage.setItem('group.' + group_id, records);
+    await localforage.setItem('msg.group.' + group_id, records);
 
 };
