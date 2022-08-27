@@ -1,0 +1,317 @@
+<!--
+ * @Author          : chenglan28
+ * @Date            : 2022-07-22 18:54:09
+ * @LastEditTime    : 2022-08-18 13:49:08
+ * @LastEditors     : lihugang
+ * @Description     : 
+ * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\ui\register.html
+ * Copyright (c) lihugang
+ * 长风破浪会有时 直挂云帆济沧海
+ * There will be times when the wind and waves break, and the sails will be hung straight to the sea.
+ *  * * * 
+ * 是非成败转头空 青山依旧在 几度夕阳红
+ * Whether it's right or wrong, success or failure, it's all empty now, and it's all gone with the passage of time. The green hills of the year still exist, and the sun still rises and sets.
+-->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Concatenate</title>
+    <link rel="stylesheet" href="../css/fonts.css">
+    <script>
+        if (window.require && window.module) {
+            window.nodeRequire = window.require;
+            window.nodeModule = window.module;
+        };
+        delete window.require;
+        delete window.module;
+    </script>
+    <script src="../lib/require.js"></script>
+    <script src="../lib/vue.js"></script>
+    <script src="../lib/vconsole.js"></script>
+    <script src="../lib/localforage.js"></script>
+    <!--<script src="https://pv.sohu.com/cityjson"></script> old ip api-->
+    <script>
+        const sdk = fRequire('../lib/sdk.js');
+        const translation = fRequire('../lib/translation.js');
+        const msg = fRequire('../lib/msg.js');
+
+        sdk.getConfig('user_config', function (config) {
+            translation.config({
+                lang: config.lang, //language
+            }, '../');
+        });
+
+        sdk.on('translation-finish-loading', function () {
+            document.title = translation.translate('@{app.name}');
+        });
+
+        sdk.getClientIp(function (ip) {
+            window.returnCitySN = {
+                cip: ip.ip,
+                location: ip.loc
+            };
+        });
+    </script>
+    <style>
+        #login {
+            padding: 0;
+            margin: 0;
+            position: absolute;
+            border: 1px solid gray;
+            background-color: white;
+        }
+
+        #login-icon {
+            margin: 0;
+            padding: 0;
+        }
+
+        #login-title {
+            position: absolute;
+            color: #2c2c2c;
+        }
+
+        #login-username,
+        #login-password,
+        #login-password-again {
+            position: absolute;
+            border-left: 2px solid #07F;
+            border-top: none;
+            border-bottom: none;
+            border-right: none;
+        }
+
+        #login-username:hover,
+        #login-password:hover,
+        #login-password-again:hover {
+            position: absolute;
+            border-left: 2px solid purple;
+            border-top: none;
+            border-bottom: none;
+            border-right: none;
+        }
+
+        #login-check {
+            position: absolute;
+        }
+
+        .login-button {
+            background-color: #07F;
+            border: none;
+            color: white;
+        }
+
+        .login-button:hover {
+            background-color: #CCC;
+            border: none;
+            color: #07F;
+        }
+
+        iframe {
+            border: none;
+        }
+    </style>
+    <script>
+        var checkFlag = 0;
+        function resize() {
+            var width = window.innerWidth;
+            var height = window.innerHeight;
+            document.body.style.padding = height / 64 + "px";
+
+            document.getElementById("login-username").style.width = width - width / 5 + "px";
+            document.getElementById("login-username").style.top = height / 10 * 1 + "px";
+            document.getElementById("login-username").style.height = height / 8 + "px";
+            document.getElementById("login-username").style.fontSize = (width + height) / 50 + "px";
+
+            document.getElementById("login-password").style.width = width - width / 5 + "px";
+            document.getElementById("login-password").style.top = height / 10 * 3 + "px";
+            document.getElementById("login-password").style.height = height / 8 + "px";
+            document.getElementById("login-password").style.fontSize = (width + height) / 50 + "px";
+
+            document.getElementById("login-password-again").style.width = width - width / 5 + "px";
+            document.getElementById("login-password-again").style.top = height / 10 * 5 + "px";
+            document.getElementById("login-password-again").style.height = height / 8 + "px";
+            document.getElementById("login-password-again").style.fontSize = (width + height) / 50 + "px";
+
+            document.querySelector('.login-check').style.top = height / 10 * 7 + "px";
+            document.querySelector('.login-check').style.left = width / 10 + "px";
+            document.querySelector('.login-check').style.fontSize = ~~((width + height) / 80) + "px";
+            document.querySelector('#login-agreements-container').style.top = height / 10 * 7 + "px";
+            document.querySelector('#login-agreements-container').style.left = width / 10 + "px";
+            document.querySelector('#login-agreements-container').style.fontSize = ~~((width + height) / 80) + "px";
+            document.querySelector('#login-agreements-container').style.position = 'fixed';
+
+
+            document.getElementById("recaptcha").style.width = width - height / 8 + "px";
+            document.getElementById("recaptcha").style.height = height - width / 10 - width / 8 - 32 + "px";
+            document.getElementById("recaptcha").style.top = height - width / 10 + "px";
+
+            document.querySelectorAll(".login-button").forEach(function (val) {
+                val.style.margin = width / 16 + "px 0px 0px 0px";
+                val.style.padding = width / 32 + "px";
+                val.style.fontSize = (width + height) / 100 + "px";
+            });
+
+
+            document.getElementById("login-icon").style.width = width / 10 + "px";
+            document.getElementById("login-icon").style.height = width / 10 + "px";
+
+            document.getElementById("login-title").style.fontSize = width / 20 + "px";
+
+
+
+            document.getElementById("remember").style.color = 'gray';
+            document.getElementById("remember").style.width = ~~((width + height) / 72) + "px";
+            document.getElementById("remember").style.height = ~~((width + height) / 72) + "px";
+        }
+        window.onresize = resize;
+        window.onload = resize;
+    </script>
+    <script>
+        var register_once = false;
+        function continue_login() {
+            document.querySelector('#login-agreements-container').style.display = 'none';
+            document.querySelector('#login-info-container').style.display = 'none';
+            document.querySelector('.login-captcha-container').style.display = '';
+        };
+        function back() {
+            document.querySelector('#login-agreements-container').style.display = '';
+            document.querySelector('#login-info-container').style.display = '';
+            document.querySelector('.login-captcha-container').style.display = 'none';
+        };
+        function login() {
+            if (window.captcha == "") { //no verify captcha
+                msg.tellUser("@{captcha.please_verify_captcha}", msg.MSG_ERROR);
+                return;
+            };
+            if (!window.returnCitySN) { //ip info not loaded
+                msg.tellUser("@{ip.waiting_for_ip_loading}", msg.MSG_ERROR);
+                return;
+            };
+            if (register_once) return; // press the register button already
+            var username = document.querySelector("#login-username").value;
+            var password = document.querySelector("#login-password").value;
+            var password2 = document.querySelector("#login-password-again").value;
+            if (username.length < 4) return msg.tellUser("@{register.username_at_least_4_chars}", msg.MSG_WARN);
+            if (password != password2) return msg.tellUser("@{register.password_must_be_the_same}", msg.MSG_WARN);
+            msg.tellUser("@{login.connecting_server}");
+            register_once = true;
+
+            sdk.remote.do('usr.register', {
+                username: username,
+                password: password,
+                captcha: window.captcha,
+                ip: returnCitySN.cip
+            }).then(async function (response) {
+                let data = await response.json();
+                if (data.status == "success") {
+                    //register successfully
+                    //save data
+                    data.data = JSON.parse(data.data);
+                    await sdk.fs.write('usr', 'utf-8', JSON.stringify({
+                        username: username,
+                        password: password,
+                        uid: data.data.uid,
+                        token: data.data.token,
+                        ip: returnCitySN.cip,
+                        login_time: new Date().getTime(),
+                        keepLogin: document.querySelector('#remember').checked
+                    }));
+                    localStorage.username = username;
+                    localStorage.uid = data.uid;
+                    localStorage.token = data.token;
+                    register_once = false;
+                    location.href = "../index.html"; //back to index page
+                } else { //failed to register
+                    msg.tellUser(`${data.code} ${data.data.source_return}`, msg.MSG_ERROR);
+                    msg.tellUser(`@{login.server_respond_error}`, msg.MSG_ERROR);
+                    msg.tellUser("@{register.failed_to_register}", msg.MSG_ERROR);
+                    register_once = false; //unlock
+                    document.querySelector('iframe').contentWindow.location.href = `https://download-concatenate.deta.dev/captcha?${location.href}.captcha_callback.html`;
+
+                    //load captcha
+                }
+            });
+
+        };
+        window.captcha = '';
+        setInterval(function () {
+            try {
+                window.captcha = document.querySelector('iframe').contentWindow.location.search.substring(1);
+                if (window.captcha == '') { //failed to get
+
+                    return;
+                };
+
+                //get captcha code
+                //this may cause problems when the protocol isn't same with this page
+                //When user finish the CAPTCHA, it will be jumped to xxx.callback_captcha.html
+                //When this time, this code will be not wrong.
+            } catch (e) {
+                return;
+            };
+            if (window.timeout_captcha_expired_lock) return;
+            setTimeout(function () {
+                //captcha expired
+                window.captcha = '';
+
+                document.querySelector('iframe').contentWindow.location.href = `https://download-concatenate.deta.dev/captcha?${location.href}.captcha_callback.html`;
+                window.timeout_captcha_expired_lock = false;
+            }, 2 * 60 * 1000); //2mins
+            window.timeout_captcha_expired_lock = true;
+
+        }, 2000);
+    </script>
+</head>
+
+<body>
+    <!--甲方:
+        三个填空框：
+        用户名
+        密码
+        X确认密码
+        一个勾选框：
+        记住我
+        中间留一行字 登录即代表同意xxx协议 协议内容我自己补充
+        再往下留个div框给recaptcha验证码用
+        最后是个提交按钮
+        -->
+    <!--项目名:Concatenate-->
+    <img src="icon.png" id="login-icon" />
+    <span id="login-title">@{app.name} @{dict.login} @{dict.system}</span>
+    <div id="login-info-container">
+        <input type="text" id="login-username" placeholder="@{dict.username}" maxlength=24 />
+        <input type="password" id="login-password" placeholder="@{dict.password}" maxlength=16 />
+        <input type="password" id="login-password-again" placeholder="@{register.input_password_again}" maxlength=16 />
+    </div>
+    <div class="login-captcha-container" id="recaptcha" style="display:none">
+        <iframe width="350px" height="400px" border=0>
+            Not support iframe, please change your browser.
+        </iframe>
+        <button type="button" class="login-button" onclick="back()">@{dict.back}</button>
+        <button type="button" class="login-button" onclick="login()">@{dict.register}</button>
+    </div>
+    <div class="login-check">
+        <div id="login-agreements-container">
+            <span style="color: gray;">@{register.agreements_tip}</span>
+            <br /><br />
+            @{register.login_tip}
+            <br />
+            <br />
+            <button type="button" class="login-button" onclick="continue_login()">@{dict.continue}</button>
+            <input type="checkbox" id="remember">@{login.auto_login}
+        </div>
+    </div>
+</body>
+
+<script>
+    sdk.on('translation-finish-loading', function () {
+        translation.translatePage();
+    });
+    document.querySelector('iframe').src = `https://download-concatenate.deta.dev/captcha?${location.href}.captcha_callback.html`;
+    resize();
+</script>
+
+</html>
