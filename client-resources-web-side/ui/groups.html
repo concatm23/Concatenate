@@ -1,0 +1,94 @@
+<!--
+ * @Author          : lihugang
+ * @Date            : 2022-07-23 20:05:46
+ * @LastEditTime    : 2022-08-19 15:32:43
+ * @LastEditors     : lihugang
+ * @Description     : 
+ * @FilePath        : c:\Users\heche\AppData\Roaming\concatenate.pz6w7nkeote\resources\ui\groups.html
+ * Copyright (c) lihugang
+ * 长风破浪会有时 直挂云帆济沧海
+ * There will be times when the wind and waves break, and the sails will be hung straight to the sea.
+ *  * * * 
+ * 是非成败转头空 青山依旧在 几度夕阳红
+ * Whether it's right or wrong, success or failure, it's all empty now, and it's all gone with the passage of time. The green hills of the year still exist, and the sun still rises and sets.
+-->
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Concatenate</title>
+    <link rel="stylesheet" href="../css/fonts.css">
+    <link rel="stylesheet" href="../css/page/groups.css">
+    <script>
+        if (window.require && window.module) {
+            window.nodeRequire = window.require;
+            window.nodeModule = window.module;
+        };
+        delete window.require;
+        delete window.module;
+    </script>
+    <script src="../lib/require.js"></script>
+    <script src="../lib/vue.js"></script>
+    <script src="../lib/vconsole.js"></script>
+    <script src="../lib/localforage.js"></script>
+    <script>
+        const sdk = fRequire('../lib/sdk.js');
+        const translation = fRequire('../lib/translation.js');
+
+        sdk.getConfig('user_config', function (config) {
+            translation.config({
+                lang: config.lang, //language
+            }, '../');
+        });
+
+        sdk.on('translation-finish-loading', function () {
+            document.title = translation.translate('@{app.name}');
+        });
+
+        const script = fRequire('../script/groups.js');
+        script();
+    </script>
+</head>
+
+<body>
+    <div class="title">
+        <img class="software-icon" src="icon.png" height="32px" width="32px">
+        <span class="software-title">{{app.name}}</span>
+    </div>
+    <div class="new-group">
+        <button id="new-group-button" onclick="javascript: fRequire('../script/groups.operation.js').create_new_group()">@{groups.create_new_group}</button>
+        <!-- I don't know why vue and native listen api doesn't work -->
+    </div>
+    <div class="groups-list">
+        <span id="top-sentinel"></span>
+        <template class="group-list-template" v-for="(item) in visible_list">
+            <div class="group-list-template" @click="enterGroup" :id="'group' + item.id" :data_index="item.list_id"
+                :data-id="item.id">
+                <img class="group-list-icon" height="32px" width="32px" :src="item.img_src">
+                <span class="group-list-name"
+                    v-bind:style="{ 'font-size': (item.name.toString().length < 13)?'1em':((1 / (item.name.toString().length / 13)) + 'em') }"
+                    :data-length="item.name.toString().length">{{item.name}}
+                </span>
+                <span class="group-list-new-message-counts"
+                    v-bind:class="{ 'group-list-new-message-counts-has-message':!!item.new_message_counts} "
+                    v-show="!!item.new_message_counts">{{item.new_message_counts}}
+                </span>
+                <span class="group-list-last-msg-time"
+                    v-bind:style="{ left: (item.new_message_counts)?(item.new_message_counts.toString().length * 8 + 'px'):('0px') }">{{item.last_msg}}
+                </span>
+            </div>
+        </template>
+        <span id="bottom-sentinel"></span>
+        <!-- spaces for switch-button -->
+        <br><br>
+    </div>
+    <div class="switch-button">
+        <img class="switch-button-icon active-switch-button" id="group-list-icon" src="groups.png" height="48px"
+            width="48px" alt="@{groups.list}">
+        <!-- <img class="switch-button-icon" id="group-file-icon" src="file.png" height="48px" width="48px"
+            alt="@{groups.file}"  onclick="javascript:location.href='fs.html'"> -->
+        <img class="switch-button-icon" id="group-settings-icon" src="settings.png" height="48px" width="48px"
+            alt="@{groups.settings}" onclick="javascript:location.href='settings.html'">
+    </div>
+    <iframe style="display:none;" class="group-frame" src="https://www.google.com"></iframe>
+</body>

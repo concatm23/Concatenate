@@ -1,0 +1,69 @@
+.title {
+    width: 95%;
+    float: center;
+    text-align: center;
+}
+
+.software-title {
+    font-size: 1.3em;
+}
+
+.switch-button {
+    position: fixed;
+    bottom: 0px;
+    background-color: white;
+    /* z-index: 3; */
+    height: 48px;
+    width: 100%;
+}
+
+.switch-button-background {
+    z-index: 2;
+    width: 100%;
+    height: 48px;
+    position: absolute;
+    bottom: 0px;
+    display: block;
+}
+
+.switch-button-icon {
+    position: absolute;
+}
+
+.group-list-template {
+    height: 38px;
+    border: 1px solid white;
+    z-index: 1;
+}
+
+.group-list-id {
+    display: none;
+}
+
+.group-list-last-msg-time {
+    font-size: 0.8em; 
+    color: gray;
+    float: right;
+    position: relative;
+}
+
+.group-list-new-message-counts {
+    font-size: 0.8em; 
+    float: right;
+    position: relative;
+    top: 16px;
+}
+
+.group-list-new-message-counts-has-message {
+    color: red
+}
+
+.group-frame {
+    position: fixed;
+    top: 0%;
+    left: 0%;
+    height: 100%;
+    width: 100%;
+    border: 0;
+    z-index: 5;
+}
