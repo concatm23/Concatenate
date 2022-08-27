@@ -1,0 +1,64 @@
+{
+  "name": "Concatenate",
+  "version": "1.0.0",
+  "main": "main.js",
+  "devDependencies": {
+    "electron": "^18.1.0",
+    "electron-prebuilt": "^1.4.13"
+  },
+  "description": "Concatenate Everywhere",
+  "author": "Concatenate",
+  "build": {
+    "productName": "Concatenate",
+    "files": [
+      "main.js",
+      "common.js",
+      "icon.ico",
+      "package.json",
+      "package-lock.json",
+      "config",
+      "routers",
+      "static-html",
+      "node-modules"
+    ],
+    "appId": "com.concatenate.concatenate",
+    "copyright": "Copyright (c) 2022 concatenate",
+    "compression": "normal",
+    "directories": {
+      "output": "build"
+    },
+    "asar": true,
+    "win": {
+      "icon": "icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "ia32",
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "icon.ico",
+      "uninstallerIcon": "icon.ico",
+      "installerHeaderIcon": "icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Concatenate"
+    }
+  },
+  "dependencies": {
+    "internet-available": "^1.0.0",
+    "js-yaml": "^4.1.0",
+    "better-sqlite3": "^7.5.3",
+    "ws": "^8.7.0",
+    "chalk": "^4.0.0",
+    "@electron/remote": "^2.0.8"
+  }
+}

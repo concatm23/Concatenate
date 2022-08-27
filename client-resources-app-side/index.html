@@ -1,0 +1,99 @@
+<!--
+ * @Author          : lihugang
+ * @Date            : 2022-07-22 13:53:01
+ * @LastEditTime    : 2022-07-30 22:23:54
+ * @LastEditors     : lihugang
+ * @Description     : 
+ * @FilePath        : e:\Concatenate\server-build\website\static\index.html
+ * Copyright (c) lihugang
+ * 长风破浪会有时 直挂云帆济沧海
+ * There will be times when the wind and waves break, and the sails will be hung straight to the sea.
+ *  * * * 
+ * 是非成败转头空 青山依旧在 几度夕阳红
+ * Whether it's right or wrong, success or failure, it's all empty now, and it's all gone with the passage of time. The green hills of the year still exist, and the sun still rises and sets.
+-->
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Concatenate</title>
+    <link rel="stylesheet" href="css/fonts.css">
+    <script>
+        if (window.require && window.module) {
+            window.nodeRequire = window.require;
+            window.nodeModule = window.module;
+        };
+        delete window.require;
+        delete window.module;
+    </script>
+    <script src="lib/require.js"></script>
+    <script src="lib/vue.js"></script>
+    <script src="lib/vconsole.js"></script>
+    <script src="lib/localforage.js"></script>
+    <script>
+        const url_parse = new URLSearchParams(decodeURIComponent(location.search.substring(1)));
+
+        var node_modules_position = url_parse.get('node_modules') || ''; //get the position of the module
+        node_modules_position = node_modules_position.replaceAll('\\', '/'); //convert '\' to '/'
+        if (node_modules_position)
+            localStorage.setItem('node_modules_position', node_modules_position); //store it
+
+        var debug_mode = url_parse.get('debug');
+        debug_mode = !!debug_mode;
+        if (debug_mode) sessionStorage.setItem('debug', true);
+        else sessionStorage.removeItem('debug');
+
+        const sdk = fRequire('lib/sdk.js');
+        const translation = fRequire('lib/translation.js');
+
+        sdk.getConfig('user_config', function (config) {
+            translation.config({
+                lang: config.lang, //language
+            });
+        });
+
+        sdk.on('translation-finish-loading', function () {
+            document.title = translation.translate('@{app.name}');
+        });
+
+        sdk.fs.read('usr').then(function (data) { //check login status
+            data = JSON.parse(data);
+            const expire_time = 1000 * 60 * 60 * 24 * 2.5; //2.5 days, 60 hrs
+            if (new Date().getTime() - data.login_time > expire_time) {
+                //login expired
+                if (data.keepLogin) {
+                    //keep login
+                    sessionStorage.setItem('username', data.username);
+                    sessionStorage.setItem('password', data.password);
+                    //store in session storage
+                };
+                //location.href = 'ui/login.html';
+                document.querySelector('iframe').src = 'ui/login.html';
+                //using iframe instead of location.href
+                //Can keep ws connection when user clicked the other pages such as files or settings
+            } else {
+                //load group page
+                //location.href = 'ui/groups.html';
+                if (url_parse.get('load')) {
+                    //set visit url
+                    //load it
+                    document.querySelector('iframe').src = 'ui/' + url_parse.get('load');
+                } else {
+                    document.querySelector('iframe').src = 'ui/groups.html';
+                };
+
+            };
+        }).catch(function (err) {
+            //not login
+            console.log(err);
+            //location.href = 'ui/login.html';
+            document.querySelector('iframe').src = 'ui/login.html';
+
+        });
+    </script>
+</head>
+
+<body>
+    <iframe border="0" height="100%" width="100%" noscroll="true"
+        style="position:fixed;top:0px;left:0px;height:100%;width:100%;border:0px"></iframe>
+</body>

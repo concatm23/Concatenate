@@ -1,0 +1,1 @@
+UPDATE cache SET expires_at = 0, cache_key=@random_key, no_query = 1 WHERE cache_key = @key

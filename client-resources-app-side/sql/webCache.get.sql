@@ -1,0 +1,1 @@
+SELECT cache_value, expires_at FROM cache WHERE cache_key = @key
